@@ -1,12 +1,17 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from datetime import datetime
 
 class EventBase(BaseModel):
-    name: str
-    desc: str
-    date: str
-    user_id: int
-    private: Optional[bool] = False
+    title: str
+    description: str = ""
+    date: datetime
+    isAllDay: bool
+    startTime: str
+    endTime: str
+
+    calendar_id: int
+    user_id: int | None = None
+
 
 class EventCreate(EventBase):
     id: int

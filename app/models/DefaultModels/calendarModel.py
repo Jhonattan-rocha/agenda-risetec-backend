@@ -9,4 +9,4 @@ class Calendar(Base):
     name = Column(String(255), default="")
     color = Column(String(255), default="")
 
-    events = relationship("Events")
+    events = relationship("Events", lazy="joined")

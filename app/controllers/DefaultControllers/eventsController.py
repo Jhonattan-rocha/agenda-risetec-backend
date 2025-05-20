@@ -3,7 +3,6 @@ from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
 from app.models.DefaultModels.eventsModel import Events
 from app.schemas import EventBase, EventCreate
 from app.utils import apply_filters_dynamic

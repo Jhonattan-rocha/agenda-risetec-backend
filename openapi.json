@@ -1668,21 +1668,16 @@
                 }
             }
         },
-        "/crud/task/": {
+        "/crud/calendar/": {
             "post": {
-                "summary": "Create Task",
-                "operationId": "create_task_crud_task__post",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
+                "summary": "Create Calendar",
+                "operationId": "create_calendar_crud_calendar__post",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/TaskBase"
+                                "$ref": "#/components/schemas/CalendarBase"
                             }
                         }
                     }
@@ -1693,7 +1688,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TaskCreate"
+                                    "$ref": "#/components/schemas/CalendarCreate"
                                 }
                             }
                         }
@@ -1711,8 +1706,8 @@
                 }
             },
             "get": {
-                "summary": "Read Tasks",
-                "operationId": "read_tasks_crud_task__get",
+                "summary": "Read Calendars",
+                "operationId": "read_calendars_crud_calendar__get",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -1757,9 +1752,9 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Task"
+                                        "$ref": "#/components/schemas/Calendar"
                                     },
-                                    "title": "Response Read Tasks Crud Task  Get"
+                                    "title": "Response Read Calendars Crud Calendar  Get"
                                 }
                             }
                         }
@@ -1777,10 +1772,10 @@
                 }
             }
         },
-        "/crud/task/{task_id}": {
+        "/crud/calendar/{calendar_id}": {
             "get": {
-                "summary": "Read Task",
-                "operationId": "read_task_crud_task__task_id__get",
+                "summary": "Read Calendar",
+                "operationId": "read_calendar_crud_calendar__calendar_id__get",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -1788,12 +1783,12 @@
                 ],
                 "parameters": [
                     {
-                        "name": "task_id",
+                        "name": "calendar_id",
                         "in": "path",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "title": "Task Id"
+                            "title": "Calendar Id"
                         }
                     }
                 ],
@@ -1803,7 +1798,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Task"
+                                    "$ref": "#/components/schemas/Calendar"
                                 }
                             }
                         }
@@ -1821,8 +1816,8 @@
                 }
             },
             "put": {
-                "summary": "Update Task",
-                "operationId": "update_task_crud_task__task_id__put",
+                "summary": "Update Calendar",
+                "operationId": "update_calendar_crud_calendar__calendar_id__put",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -1830,12 +1825,12 @@
                 ],
                 "parameters": [
                     {
-                        "name": "task_id",
+                        "name": "calendar_id",
                         "in": "path",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "title": "Task Id"
+                            "title": "Calendar Id"
                         }
                     }
                 ],
@@ -1844,7 +1839,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/TaskCreate"
+                                "$ref": "#/components/schemas/CalendarCreate"
                             }
                         }
                     }
@@ -1855,7 +1850,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TaskCreate"
+                                    "$ref": "#/components/schemas/CalendarCreate"
                                 }
                             }
                         }
@@ -1873,8 +1868,8 @@
                 }
             },
             "delete": {
-                "summary": "Delete Task",
-                "operationId": "delete_task_crud_task__task_id__delete",
+                "summary": "Delete Calendar",
+                "operationId": "delete_calendar_crud_calendar__calendar_id__delete",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -1882,12 +1877,12 @@
                 ],
                 "parameters": [
                     {
-                        "name": "task_id",
+                        "name": "calendar_id",
                         "in": "path",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "title": "Task Id"
+                            "title": "Calendar Id"
                         }
                     }
                 ],
@@ -1936,7 +1931,7 @@
                         "anyOf": [
                             {
                                 "type": "string",
-                                "pattern": "password"
+                                "pattern": "^password$"
                             },
                             {
                                 "type": "null"
@@ -1987,135 +1982,247 @@
                 ],
                 "title": "Body_login_crud_token__post"
             },
-            "Event": {
+            "Calendar": {
                 "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "desc": {
-                        "type": "string",
-                        "title": "Desc"
-                    },
-                    "date": {
-                        "type": "string",
-                        "title": "Date"
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "title": "User Id"
-                    },
-                    "private": {
-                        "anyOf": [
-                            {
-                                "type": "boolean"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Private",
-                        "default": false
-                    },
                     "id": {
                         "type": "integer",
                         "title": "Id"
                     },
-                    "tasks": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    },
+                    "events": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/Event"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Events"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "color",
+                    "events"
+                ],
+                "title": "Calendar"
+            },
+            "CalendarBase": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "color"
+                ],
+                "title": "CalendarBase"
+            },
+            "CalendarCreate": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "color"
+                ],
+                "title": "CalendarCreate"
+            },
+            "Event": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "default": ""
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
+                    },
+                    "isAllDay": {
+                        "type": "boolean",
+                        "title": "Isallday"
+                    },
+                    "startTime": {
+                        "type": "string",
+                        "title": "Starttime"
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "title": "Endtime"
+                    },
+                    "calendar_id": {
+                        "type": "integer",
+                        "title": "Calendar Id"
+                    },
+                    "user_id": {
                         "anyOf": [
                             {
-                                "items": {
-                                    "$ref": "#/components/schemas/Task"
-                                },
-                                "type": "array"
+                                "type": "integer"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Tasks"
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "name",
-                    "desc",
+                    "title",
                     "date",
-                    "user_id",
-                    "id",
-                    "tasks"
+                    "isAllDay",
+                    "startTime",
+                    "endTime",
+                    "calendar_id",
+                    "id"
                 ],
                 "title": "Event"
             },
             "EventBase": {
                 "properties": {
-                    "name": {
+                    "title": {
                         "type": "string",
-                        "title": "Name"
+                        "title": "Title"
                     },
-                    "desc": {
+                    "description": {
                         "type": "string",
-                        "title": "Desc"
+                        "title": "Description",
+                        "default": ""
                     },
                     "date": {
                         "type": "string",
+                        "format": "date-time",
                         "title": "Date"
                     },
-                    "user_id": {
-                        "type": "integer",
-                        "title": "User Id"
+                    "isAllDay": {
+                        "type": "boolean",
+                        "title": "Isallday"
                     },
-                    "private": {
+                    "startTime": {
+                        "type": "string",
+                        "title": "Starttime"
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "title": "Endtime"
+                    },
+                    "calendar_id": {
+                        "type": "integer",
+                        "title": "Calendar Id"
+                    },
+                    "user_id": {
                         "anyOf": [
                             {
-                                "type": "boolean"
+                                "type": "integer"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Private",
-                        "default": false
+                        "title": "User Id"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "name",
-                    "desc",
+                    "title",
                     "date",
-                    "user_id"
+                    "isAllDay",
+                    "startTime",
+                    "endTime",
+                    "calendar_id"
                 ],
                 "title": "EventBase"
             },
             "EventCreate": {
                 "properties": {
-                    "name": {
+                    "title": {
                         "type": "string",
-                        "title": "Name"
+                        "title": "Title"
                     },
-                    "desc": {
+                    "description": {
                         "type": "string",
-                        "title": "Desc"
+                        "title": "Description",
+                        "default": ""
                     },
                     "date": {
                         "type": "string",
+                        "format": "date-time",
                         "title": "Date"
                     },
-                    "user_id": {
-                        "type": "integer",
-                        "title": "User Id"
+                    "isAllDay": {
+                        "type": "boolean",
+                        "title": "Isallday"
                     },
-                    "private": {
+                    "startTime": {
+                        "type": "string",
+                        "title": "Starttime"
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "title": "Endtime"
+                    },
+                    "calendar_id": {
+                        "type": "integer",
+                        "title": "Calendar Id"
+                    },
+                    "user_id": {
                         "anyOf": [
                             {
-                                "type": "boolean"
+                                "type": "integer"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Private",
-                        "default": false
+                        "title": "User Id"
                     },
                     "id": {
                         "type": "integer",
@@ -2124,10 +2231,12 @@
                 },
                 "type": "object",
                 "required": [
-                    "name",
-                    "desc",
+                    "title",
                     "date",
-                    "user_id",
+                    "isAllDay",
+                    "startTime",
+                    "endTime",
+                    "calendar_id",
                     "id"
                 ],
                 "title": "EventCreate"
@@ -2201,6 +2310,7 @@
             "GenericCreate": {
                 "properties": {
                     "values": {
+                        "additionalProperties": true,
                         "type": "object",
                         "title": "Values",
                         "default": {}
@@ -2240,7 +2350,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-01-15T16:17:35.379454"
+                        "default": "2025-05-20T16:41:55.256989"
                     },
                     "action": {
                         "type": "string",
@@ -2284,7 +2394,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-01-15T16:17:35.379454"
+                        "default": "2025-05-20T16:41:55.256989"
                     },
                     "action": {
                         "type": "string",
@@ -2312,7 +2422,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-01-15T16:17:35.379454"
+                        "default": "2025-05-20T16:41:55.256989"
                     },
                     "action": {
                         "type": "string",
@@ -2456,160 +2566,6 @@
                 ],
                 "title": "PermissionsCreate"
             },
-            "Task": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "desc": {
-                        "type": "string",
-                        "title": "Desc"
-                    },
-                    "date": {
-                        "type": "string",
-                        "title": "Date"
-                    },
-                    "ready": {
-                        "type": "boolean",
-                        "title": "Ready"
-                    },
-                    "event_id": {
-                        "type": "integer",
-                        "title": "Event Id"
-                    },
-                    "pendding_notifi": {
-                        "type": "boolean",
-                        "title": "Pendding Notifi",
-                        "default": true
-                    },
-                    "loop": {
-                        "type": "boolean",
-                        "title": "Loop",
-                        "default": true
-                    },
-                    "time_to_dispatch": {
-                        "type": "number",
-                        "title": "Time To Dispatch",
-                        "default": 3
-                    },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "name",
-                    "desc",
-                    "date",
-                    "ready",
-                    "event_id",
-                    "id"
-                ],
-                "title": "Task"
-            },
-            "TaskBase": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "desc": {
-                        "type": "string",
-                        "title": "Desc"
-                    },
-                    "date": {
-                        "type": "string",
-                        "title": "Date"
-                    },
-                    "ready": {
-                        "type": "boolean",
-                        "title": "Ready"
-                    },
-                    "event_id": {
-                        "type": "integer",
-                        "title": "Event Id"
-                    },
-                    "pendding_notifi": {
-                        "type": "boolean",
-                        "title": "Pendding Notifi",
-                        "default": true
-                    },
-                    "loop": {
-                        "type": "boolean",
-                        "title": "Loop",
-                        "default": true
-                    },
-                    "time_to_dispatch": {
-                        "type": "number",
-                        "title": "Time To Dispatch",
-                        "default": 3
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "name",
-                    "desc",
-                    "date",
-                    "ready",
-                    "event_id"
-                ],
-                "title": "TaskBase"
-            },
-            "TaskCreate": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "desc": {
-                        "type": "string",
-                        "title": "Desc"
-                    },
-                    "date": {
-                        "type": "string",
-                        "title": "Date"
-                    },
-                    "ready": {
-                        "type": "boolean",
-                        "title": "Ready"
-                    },
-                    "event_id": {
-                        "type": "integer",
-                        "title": "Event Id"
-                    },
-                    "pendding_notifi": {
-                        "type": "boolean",
-                        "title": "Pendding Notifi",
-                        "default": true
-                    },
-                    "loop": {
-                        "type": "boolean",
-                        "title": "Loop",
-                        "default": true
-                    },
-                    "time_to_dispatch": {
-                        "type": "number",
-                        "title": "Time To Dispatch",
-                        "default": 3
-                    },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "name",
-                    "desc",
-                    "date",
-                    "ready",
-                    "event_id",
-                    "id"
-                ],
-                "title": "TaskCreate"
-            },
             "Token": {
                 "properties": {
                     "access_token": {
@@ -2621,6 +2577,7 @@
                         "title": "Token Type"
                     },
                     "user": {
+                        "additionalProperties": true,
                         "type": "object",
                         "title": "User"
                     }

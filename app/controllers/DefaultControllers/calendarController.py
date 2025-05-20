@@ -6,6 +6,7 @@ from sqlalchemy.future import select
 from app.models.DefaultModels.calendarModel import Calendar
 from app.schemas import CalendarBase, CalendarCreate
 from app.utils import apply_filters_dynamic
+from sqlalchemy.orm import joinedload
 
 
 async def create_calendar(db: AsyncSession, calendar: CalendarBase):
@@ -26,6 +27,7 @@ async def get_calendars(db: AsyncSession, skip: int = 0, limit: int = 10, filter
     result = await db.execute(
         query
         .offset(skip)
+        .options(joinedload(Calendar.events))
         .limit(limit if limit > 0 else None)
     )
     return result.scalars().unique().all()
@@ -33,7 +35,9 @@ async def get_calendars(db: AsyncSession, skip: int = 0, limit: int = 10, filter
 
 async def get_calendar(db: AsyncSession, calendar_id: int):
     result = await db.execute(
-        select(Calendar).where(Calendar.id == calendar_id)
+        select(Calendar)
+        .options(joinedload(Calendar.events))
+        .where(Calendar.id == calendar_id)
     )
     calendar = result.scalars().unique().first()
     if not calendar:

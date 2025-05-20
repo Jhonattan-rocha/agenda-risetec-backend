@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from app.database import Base
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 class Events(Base):
     __tablename__ = "events"
@@ -14,4 +15,4 @@ class Events(Base):
     endTime = Column(String, nullable=False)
 
     calendar_id = Column(Integer, ForeignKey("calendars.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
