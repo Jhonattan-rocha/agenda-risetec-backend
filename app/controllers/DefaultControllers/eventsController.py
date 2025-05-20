@@ -26,7 +26,6 @@ async def get_events(db: AsyncSession, skip: int = 0, limit: int = 10, filters: 
     result = await db.execute(
         query
         .offset(skip)
-        .options(joinedload(Events.tasks))
         .limit(limit if limit > 0 else None)
     )
     return result.scalars().unique().all()
@@ -35,7 +34,6 @@ async def get_events(db: AsyncSession, skip: int = 0, limit: int = 10, filters: 
 async def get_event(db: AsyncSession, event_id: int):
     result = await db.execute(
         select(Events)
-        .options(joinedload(Events.tasks))
         .where(Events.id == event_id)
     )
     event = result.scalars().unique().first()

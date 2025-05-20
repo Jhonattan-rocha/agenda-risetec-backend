@@ -1,19 +1,19 @@
 from pydantic import BaseModel
 from typing import Optional, List
+from .eventsSchema import Event
 
-class EventBase(BaseModel):
+class CalendarBase(BaseModel):
+    id: int
     name: str
-    desc: str
-    date: str
-    user_id: int
-    private: Optional[bool] = False
+    color: str
 
-class EventCreate(EventBase):
+class CalendarCreate(CalendarBase):
     id: int
 
 
-class Event(EventBase):
+class Calendar(CalendarBase):
     id: int
+    events: List[Optional[Event]]
 
     class Config:
         from_attributes = True

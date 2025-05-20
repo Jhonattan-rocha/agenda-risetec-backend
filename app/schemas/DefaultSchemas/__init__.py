@@ -5,5 +5,4 @@ from app.schemas.DefaultSchemas.logSchema import Logger, LoggerBase, LoggerCreat
 from app.schemas.DefaultSchemas.fileSchema import FileBase, FileCreate, FileResponse
 from app.schemas.DefaultSchemas.tokenSchema import Token
 from app.schemas.DefaultSchemas.eventsSchema import Event, EventBase, EventCreate
-from app.schemas.DefaultSchemas.tasksSchema import Task, TaskBase, TaskCreate
-from app.schemas.DefaultSchemas.notificationSchema import Notification, NotificationBase, NotificationCreate
+from app.schemas.DefaultSchemas.calendarSchema import Calendar, CalendarBase, CalendarCreate

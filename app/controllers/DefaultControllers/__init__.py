@@ -10,6 +10,6 @@ from app.controllers.DefaultControllers.tokenController import (create_access_to
 
 from app.controllers.DefaultControllers.logController import create_log, get_logs
 
-from app.controllers.DefaultControllers.tasksController import create_task, update_task, get_task, get_tasks, delete_task
 from app.controllers.DefaultControllers.eventsController import create_event, update_event, get_event, get_events, delete_event
-from app.controllers.DefaultControllers.notificationController import create_notification, update_notification, get_notification, get_notifications, delete_notification
+
+from app.controllers.DefaultControllers.calendarController import create_calendar, update_calendar, get_calendar, get_calendars, delete_calendar

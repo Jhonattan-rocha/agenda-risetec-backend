@@ -14,7 +14,6 @@ from app.routers.DefaultRouters.fileRouter import router as fileRouter
 from app.routers.DefaultRouters.logRouter import router as logRouter
 from app.routers.CustomRouters.genericRouter import router as genericRouter
 from app.routers.DefaultRouters.eventsRouter import router as eventsRouter
-from app.routers.DefaultRouters.tasksRouter import router as tasksRouter
 from app.services.notificate import job_executed_listener, check_and_notify, EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, AsyncIOScheduler
 import os
 from uvicorn.config import LOGGING_CONFIG
@@ -31,7 +30,6 @@ async def lifespan_startup(app: FastAPI):
     app.include_router(fileRouter)
     app.include_router(logRouter)
     app.include_router(eventsRouter)
-    app.include_router(tasksRouter)
     generate_doc()
     async with database.engine.begin() as conn:
         await conn.run_sync(database.Base.metadata.create_all)
