@@ -40,7 +40,7 @@ def generate_doc():
 
 
 app = FastAPI(lifespan=lifespan_startup,
-              title="Agenda-IMKTEC",
+              title="Agenda Risetec",
               description="API under development",
               summary="Routes of app",
               version="0.0.1",
