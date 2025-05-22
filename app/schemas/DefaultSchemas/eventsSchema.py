@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 
 class EventBase(BaseModel):
@@ -11,6 +11,12 @@ class EventBase(BaseModel):
 
     calendar_id: int
     user_id: int | None = None
+
+    @field_validator("date")
+    def remove_timezone(cls, v):
+        if v and v.tzinfo:
+            return v.replace(tzinfo=None)
+        return v
 
 
 class EventCreate(EventBase):
