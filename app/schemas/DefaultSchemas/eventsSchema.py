@@ -8,6 +8,7 @@ class EventBase(BaseModel):
     isAllDay: bool
     startTime: str
     endTime: str
+    color: str
 
     calendar_id: int
     user_id: int | None = None

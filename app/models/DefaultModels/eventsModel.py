@@ -12,6 +12,7 @@ class Events(Base):
     isAllDay = Column(Boolean, default=False)
     startTime = Column(String, nullable=False)
     endTime = Column(String, nullable=False)
-
+    color = Column(String)
+    
     calendar_id = Column(Integer, ForeignKey("calendars.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)

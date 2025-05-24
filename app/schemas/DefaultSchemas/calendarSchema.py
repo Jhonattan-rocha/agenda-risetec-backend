@@ -3,7 +3,6 @@ from typing import Optional, List
 from .eventsSchema import Event
 
 class CalendarBase(BaseModel):
-    id: int
     name: str
     color: str
 

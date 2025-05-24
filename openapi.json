@@ -1984,10 +1984,6 @@
             },
             "Calendar": {
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    },
                     "name": {
                         "type": "string",
                         "title": "Name"
@@ -1995,6 +1991,10 @@
                     "color": {
                         "type": "string",
                         "title": "Color"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
                     },
                     "events": {
                         "items": {
@@ -2013,19 +2013,15 @@
                 },
                 "type": "object",
                 "required": [
-                    "id",
                     "name",
                     "color",
+                    "id",
                     "events"
                 ],
                 "title": "Calendar"
             },
             "CalendarBase": {
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    },
                     "name": {
                         "type": "string",
                         "title": "Name"
@@ -2037,7 +2033,6 @@
                 },
                 "type": "object",
                 "required": [
-                    "id",
                     "name",
                     "color"
                 ],
@@ -2045,10 +2040,6 @@
             },
             "CalendarCreate": {
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    },
                     "name": {
                         "type": "string",
                         "title": "Name"
@@ -2056,13 +2047,17 @@
                     "color": {
                         "type": "string",
                         "title": "Color"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "id",
                     "name",
-                    "color"
+                    "color",
+                    "id"
                 ],
                 "title": "CalendarCreate"
             },
@@ -2094,6 +2089,10 @@
                         "type": "string",
                         "title": "Endtime"
                     },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    },
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
@@ -2121,6 +2120,7 @@
                     "isAllDay",
                     "startTime",
                     "endTime",
+                    "color",
                     "calendar_id",
                     "id"
                 ],
@@ -2154,6 +2154,10 @@
                         "type": "string",
                         "title": "Endtime"
                     },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    },
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
@@ -2177,6 +2181,7 @@
                     "isAllDay",
                     "startTime",
                     "endTime",
+                    "color",
                     "calendar_id"
                 ],
                 "title": "EventBase"
@@ -2209,6 +2214,10 @@
                         "type": "string",
                         "title": "Endtime"
                     },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    },
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
@@ -2236,6 +2245,7 @@
                     "isAllDay",
                     "startTime",
                     "endTime",
+                    "color",
                     "calendar_id",
                     "id"
                 ],
@@ -2350,7 +2360,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-05-22T15:16:02.294689"
+                        "default": "2025-05-24T11:50:19.509576"
                     },
                     "action": {
                         "type": "string",
@@ -2394,7 +2404,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-05-22T15:16:02.294689"
+                        "default": "2025-05-24T11:50:19.509576"
                     },
                     "action": {
                         "type": "string",
@@ -2422,7 +2432,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-05-22T15:16:02.294689"
+                        "default": "2025-05-24T11:50:19.509576"
                     },
                     "action": {
                         "type": "string",
