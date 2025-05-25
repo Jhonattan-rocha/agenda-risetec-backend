@@ -5,6 +5,7 @@ from .eventsSchema import Event
 class CalendarBase(BaseModel):
     name: str
     color: str
+    visible: bool
 
 class CalendarCreate(CalendarBase):
     id: int

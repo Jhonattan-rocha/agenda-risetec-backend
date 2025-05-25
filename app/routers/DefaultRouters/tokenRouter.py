@@ -13,8 +13,6 @@ from app.models.DefaultModels.userProfileModel import UserProfile
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 import hashlib
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import serialization, hashes 
 import globals
 import base64
 
