@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg # Ou outro driver de DB assíncrono que você use
+pydantic
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt] # <-- Biblioteca para hashing de senhas
+python-multipart # Para upload de arquivos
