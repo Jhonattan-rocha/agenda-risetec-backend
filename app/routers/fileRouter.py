@@ -2,9 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers.DefaultControllers import fileController as file_controller
+from app.controllers import fileController as file_controller
 from app.database import database
-from app.controllers.DefaultControllers.tokenController import verify_token
+from app.controllers.tokenController import verify_token
 from app.schemas.DefaultSchemas import fileSchema
 import shutil, os, time
 

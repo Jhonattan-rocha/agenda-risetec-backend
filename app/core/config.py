@@ -1,3 +1,4 @@
+# agenda-risetec-backend/app/core/config.py
 from pydantic_settings import BaseSettings
 from pydantic import EmailStr
 
@@ -17,8 +18,8 @@ class Settings(BaseSettings):
     MAIL_PORT: int
     MAIL_SERVER: str
     MAIL_FROM_NAME: str
-    MAIL_STARTTLS: bool
-    MAIL_SSL_TLS: bool
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
 
     class Config:
         env_file = ".env"

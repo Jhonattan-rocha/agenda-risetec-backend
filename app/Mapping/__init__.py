@@ -1,9 +1,9 @@
-from app.models.DefaultModels.userModel import User
-from app.models.DefaultModels.userProfileModel import UserProfile
-from app.models.DefaultModels.permissionsModel import Permissions
-from app.models.DefaultModels.fileModel import File
-from app.models.DefaultModels.logModel import Logger
-from app.models.DefaultModels.eventsModel import Events
+from app.models.userModel import User
+from app.models.userProfileModel import UserProfile
+from app.models.permissionsModel import Permissions
+from app.models.fileModel import File
+from app.models.logModel import Logger
+from app.models.eventsModel import Events
 
 from typing import Any
 

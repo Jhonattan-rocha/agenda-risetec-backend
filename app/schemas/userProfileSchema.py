@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from app.schemas.DefaultSchemas.permissionsSchema import Permissions
+from app.schemas.permissionsSchema import Permissions
 
 
 class UserProfileBase(BaseModel):

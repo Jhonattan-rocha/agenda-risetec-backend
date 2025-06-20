@@ -2,19 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.controllers.CustomControllers import GenericController
+from app.controllers.genericController import GenericController
 from app.database import database
 from datetime import timedelta
 
 from app.schemas.DefaultSchemas import Token
-from app.controllers.DefaultControllers import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models.DefaultModels.userModel import User
-from app.models.DefaultModels.userProfileModel import UserProfile
+from app.controllers.tokenController import create_access_token
+from app.models.userModel import User
+from app.models.userProfileModel import UserProfile
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
+from app.core.config import settings
 import hashlib
-import globals
-import base64
 
 router = APIRouter(prefix="/crud")
 
@@ -45,7 +44,7 @@ async def login(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"id": user.id, "email": user.email}, expires_delta=access_token_expires
         )

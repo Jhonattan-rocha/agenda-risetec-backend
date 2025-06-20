@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from app.schemas.DefaultSchemas.userProfileSchema import UserProfile
-from app.schemas.DefaultSchemas.eventsSchema import Event
+from app.schemas.userProfileSchema import UserProfile
+from app.schemas.eventsSchema import Event
 
 class UserBase(BaseModel):
     name: str

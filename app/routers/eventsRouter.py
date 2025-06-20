@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers.DefaultControllers import eventsController as event_controller
-from app.controllers.DefaultControllers.tokenController import verify_token
+from app.controllers import eventsController as event_controller
+from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.DefaultSchemas import eventsSchema
 

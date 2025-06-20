@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers.CustomControllers import GenericController, models_mapping
-from app.database import database, Base
+from app.controllers.genericController import GenericController
+from app.database import database
 from app.schemas.CustomSchemas import genericSchema
 from app.controllers import verify_token
 
@@ -34,7 +34,7 @@ async def generic_reads(skip: int = 0, limit: int = 10, model: str = "",
     if len(result) < 1:
         return []
     keys = [key for key in result[0].__dict__.keys() if not key.startswith('_')]
-    getValueFromObj = lambda item: {key: getattr(item, key) if not isinstance(getattr(item, key), Base) else generic_controller.serialize_item(getattr(item, key)) for key in keys}
+    getValueFromObj = lambda item: {key: getattr(item, key) if not isinstance(getattr(item, key), database.Base) else generic_controller.serialize_item(getattr(item, key)) for key in keys}
     return [genericSchema.GenericCreate(**{'values': {**getValueFromObj(item)}, 'model': model}) for item in result]
 
 
@@ -49,7 +49,7 @@ async def generic_read(generic_id: int, model: str = "", db: AsyncSession = Depe
         raise HTTPException(status_code=404, detail="Item not found")
 
     keys = [key for key in result.__dict__.keys() if not key.startswith('_')]
-    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})
+    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), database.Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})
 
 
 @router.put("/generic/{generic_id}",
@@ -64,7 +64,7 @@ async def generic_update(generic_id: int,
     db_obj = await generic_controller.get(id=generic_id, db=db)
     result = await generic_controller.update(db_obj=db_obj, obj_in=updated_generic, db=db)
     keys = [key for key in result.__dict__.keys() if not key.startswith('_')]
-    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})
+    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), database.Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})
 
 
 @router.delete("/generic/{generic_id}", response_model=genericSchema.GenericCreate)
@@ -76,4 +76,4 @@ async def generic_delete(generic_id: int, model: str, db: AsyncSession = Depends
     if result is None:
         raise HTTPException(status_code=404, detail="Item not found")
     keys = [key for key in result.__dict__.keys() if not key.startswith('_')]
-    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})
+    return genericSchema.GenericCreate(**{'values': {key: getattr(result, key) if not isinstance(getattr(result, key), database.Base) else generic_controller.serialize_item(getattr(result, key)) for key in keys}, 'model': model})

@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.controllers.DefaultControllers import userProfileController as user_profile_controller
-from app.controllers.DefaultControllers.tokenController import verify_token
+from app.controllers import userProfileController as user_profile_controller
+from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.DefaultSchemas import userProfileSchema
 

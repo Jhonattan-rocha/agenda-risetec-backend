@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers.DefaultControllers import permissonsController as permissons_controller
+from app.controllers import permissonsController as permissons_controller
 from app.database import database
 from app.schemas.DefaultSchemas import permissionsSchema
 from app.controllers import verify_token

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import datetime
 from typing import Optional
-from app.schemas.DefaultSchemas.userSchema import User
+from app.schemas.userSchema import User
 
 class LoggerBase(BaseModel):
     user_id: int

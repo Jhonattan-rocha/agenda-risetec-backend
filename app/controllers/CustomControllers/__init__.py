@@ -1,1 +1,0 @@
-from app.controllers.CustomControllers.genericController import GenericController, models_fields_mapping, models_mapping
