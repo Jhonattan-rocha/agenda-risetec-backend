@@ -1,73 +1,45 @@
 from typing import Optional, List
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.models.DefaultModels.calendarModel import Calendar
-from app.schemas import CalendarBase, CalendarCreate
-from app.utils import apply_filters_dynamic
 from sqlalchemy.orm import joinedload
 
+from app.controllers.base import CRUDBase
+from app.models.calendarModel import Calendar
+from app.schemas.calendarSchema import CalendarCreate, CalendarBase
+from app.utils import apply_filters_dynamic
 
-async def create_calendar(db: AsyncSession, calendar: CalendarBase):
-    db_calendar = Calendar(**calendar.model_dump(exclude_none=True))
-    db.add(db_calendar)
-    await db.commit()
-    await db.refresh(db_calendar)
-    return db_calendar
-
-
-async def get_calendars(db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[List[str]] = None,
-                        model: str = ""):
-    query = select(Calendar)
-
-    if filters and model:
-        query = apply_filters_dynamic(query, filters, model)
-
-    result = await db.execute(
-        query
-        .offset(skip)
-        .options(joinedload(Calendar.events))
-        .limit(limit if limit > 0 else None)
-    )
-    return result.scalars().unique().all()
-
-
-async def get_calendar(db: AsyncSession, calendar_id: int):
-    result = await db.execute(
-        select(Calendar)
-        .options(joinedload(Calendar.events))
-        .where(Calendar.id == calendar_id)
-    )
-    calendar = result.scalars().unique().first()
-    if not calendar:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid id, not found",
+# NOVO: Classe CRUD específica para Calendar, herdando de CRUDBase.
+class CRUDCalendar(CRUDBase[Calendar, CalendarCreate, CalendarCreate]):
+    
+    # NOVO: Método customizado para buscar um calendário com seus eventos.
+    async def get_with_events(self, db: AsyncSession, *, id: int) -> Optional[Calendar]:
+        result = await db.execute(
+            select(self.model)
+            .options(joinedload(self.model.events))
+            .filter(self.model.id == id)
         )
-    return calendar
+        calendar = result.scalars().unique().first()
+        if not calendar:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Calendar not found",
+            )
+        return calendar
 
+    # NOVO: Método customizado para buscar múltiplos calendários com seus eventos e filtros.
+    async def get_multi_with_events(
+        self, db: AsyncSession, *, skip: int, limit: int, filters: str, model: str
+    ) -> List[Calendar]:
+        query = select(self.model).options(joinedload(self.model.events))
 
-async def update_calendar(db: AsyncSession, calendar_id: int, updated_calendar: CalendarCreate):
-    result = await db.execute(select(Calendar).where(Calendar.id == calendar_id))
-    calendar = result.scalars().first()
-    if calendar is None:
-        return None
+        if filters and model:
+            query = apply_filters_dynamic(query, filters, model)
 
-    for key, value in updated_calendar.model_dump(exclude_none=True).items():
-        if str(value):
-            setattr(calendar, key, value)
+        result = await db.execute(
+            query.offset(skip).limit(limit if limit > 0 else None)
+        )
+        return result.scalars().unique().all()
 
-    await db.commit()
-    await db.refresh(calendar)
-    return calendar
-
-
-async def delete_calendar(db: AsyncSession, calendar_id: int):
-    result = await db.execute(select(Calendar).where(Calendar.id == calendar_id))
-    calendar = result.scalars().first()
-    if calendar is None:
-        return None
-    await db.delete(calendar)
-    await db.commit()
-    return calendar
+# NOVO: Instância do controller para ser usada nas rotas.
+calendar_controller = CRUDCalendar(Calendar)

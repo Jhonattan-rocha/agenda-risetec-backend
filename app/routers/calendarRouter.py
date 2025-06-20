@@ -1,38 +1,60 @@
-from fastapi import APIRouter, Depends
+# agenda-risetec-backend/app/routers/calendarRouter.py
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers import calendarController as calendar_controller
+from app.controllers import calendarController
 from app.controllers.tokenController import verify_token
 from app.database import database
-from app.schemas import calendarSchema
+from app.schemas.calendarSchema import Calendar, CalendarBase, CalendarCreate
 
-router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/crud")
 
+@router.post("/calendar/", response_model=Calendar, dependencies=[Depends(verify_token)])
+async def create_calendar(
+    calendar: CalendarBase, 
+    db: AsyncSession = Depends(database.get_db), 
+):
+    return await calendarController.calendar_controller.create(db=db, obj_in=calendar)
 
-@router.post("/calendar/", response_model=calendarSchema.CalendarCreate)
-async def create_calendar(calendar: calendarSchema.CalendarBase, db: AsyncSession = Depends(database.get_db)):
-    return await calendar_controller.create_calendar(calendar=calendar, db=db)
+@router.get("/calendar/", response_model=list[Calendar])
+async def read_calendars(
+    filters: str = None, 
+    skip: int = 0, 
+    limit: int = 10,
+    db: AsyncSession = Depends(database.get_db),
+):
+    # ALTERAÇÃO: Usa o método customizado 'get_multi_with_events'.
+    return await calendarController.calendar_controller.get_multi_with_events(
+        db=db, skip=skip, limit=limit, filters=filters, model="Calendar"
+    )
 
+@router.get("/calendar/{calendar_id}", response_model=Calendar)
+async def read_calendar(
+    calendar_id: int, 
+    db: AsyncSession = Depends(database.get_db),
+):
+    # ALTERAÇÃO: Usa o método customizado 'get_with_events'.
+    return await calendarController.calendar_controller.get_with_events(db=db, id=calendar_id)
 
-@router.get("/calendar/", response_model=list[calendarSchema.Calendar])
-async def read_calendars(filters: str = None, skip: int = 0, limit: int = 10,
-                         db: AsyncSession = Depends(database.get_db),
-                         ):
-    return await calendar_controller.get_calendars(skip=skip, limit=limit, db=db, filters=filters, model="Calendar")
+@router.put("/calendar/{calendar_id}", response_model=Calendar)
+async def update_calendar(
+    calendar_id: int, 
+    updated_calendar: CalendarCreate,
+    db: AsyncSession = Depends(database.get_db), 
+):
+    # ALTERAÇÃO: Busca o objeto antes de atualizar.
+    db_calendar = await calendarController.calendar_controller.get(db=db, id=calendar_id)
+    if not db_calendar:
+        raise HTTPException(status_code=404, detail="Calendar not found")
+    return await calendarController.calendar_controller.update(db=db, db_obj=db_calendar, obj_in=updated_calendar)
 
-
-@router.get("/calendar/{calendar_id}", response_model=calendarSchema.Calendar)
-async def read_calendar(calendar_id: int, db: AsyncSession = Depends(database.get_db),
-                        ):
-    return await calendar_controller.get_calendar(calendar_id=calendar_id, db=db)
-
-
-@router.put("/calendar/{calendar_id}", response_model=calendarSchema.CalendarCreate)
-async def update_calendar(calendar_id: int, updated_calendar: calendarSchema.CalendarCreate,
-                          db: AsyncSession = Depends(database.get_db), ):
-    return await calendar_controller.update_calendar(calendar_id=calendar_id, updated_calendar=updated_calendar, db=db)
-
-
-@router.delete("/calendar/{calendar_id}")
-async def delete_calendar(calendar_id: int, db: AsyncSession = Depends(database.get_db),
-                          ):
-    return await calendar_controller.delete_calendar(calendar_id=calendar_id, db=db)
+@router.delete("/calendar/{calendar_id}", response_model=Calendar)
+async def delete_calendar(
+    calendar_id: int, 
+    db: AsyncSession = Depends(database.get_db),
+):
+    # ALTERAÇÃO: Usa o método 'remove' da classe base.
+    deleted_calendar = await calendarController.calendar_controller.remove(db=db, id=calendar_id)
+    if not deleted_calendar:
+        raise HTTPException(status_code=404, detail="Calendar not found")
+    return deleted_calendar

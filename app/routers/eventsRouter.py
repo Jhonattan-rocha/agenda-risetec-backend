@@ -1,38 +1,57 @@
-from fastapi import APIRouter, Depends
+# agenda-risetec-backend/app/routers/eventsRouter.py
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers import eventsController as event_controller
+# ALTERAÇÃO: Importa a instância do controller.
+from app.controllers import eventsController
 from app.controllers.tokenController import verify_token
 from app.database import database
-from app.schemas import eventsSchema
+from app.schemas.eventsSchema import Event, EventBase, EventCreate
 
 router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
 
+@router.post("/event/", response_model=Event)
+async def create_event(
+    event: EventBase, 
+    db: AsyncSession = Depends(database.get_db), 
+):
+    return await eventsController.event_controller.create(db=db, obj_in=event)
 
-@router.post("/event/", response_model=eventsSchema.EventCreate)
-async def create_event(event: eventsSchema.EventBase, db: AsyncSession = Depends(database.get_db)):
-    return await event_controller.create_event(event=event, db=db)
+@router.get("/event/", response_model=list[Event])
+async def read_events(
+    filters: str = None, 
+    skip: int = 0, 
+    limit: int = 10,
+    db: AsyncSession = Depends(database.get_db),
+):
+    return await eventsController.event_controller.get_multi_filtered(
+        db=db, skip=skip, limit=limit, filters=filters, model="Events"
+    )
 
+@router.get("/event/{event_id}", response_model=Event)
+async def read_event(
+    event_id: int, 
+    db: AsyncSession = Depends(database.get_db), 
+):
+    return await eventsController.event_controller.get_event(db=db, id=event_id)
 
-@router.get("/event/", response_model=list[eventsSchema.Event])
-async def read_events(filters: str = None, skip: int = 0, limit: int = 10,
-                     db: AsyncSession = Depends(database.get_db),
-                     ):
-    result = await event_controller.get_events(skip=skip, limit=limit, db=db, filters=filters, model="Events")
-    return result
+@router.put("/event/{event_id}", response_model=Event)
+async def update_event(
+    event_id: int, 
+    updated_event: EventCreate,
+    db: AsyncSession = Depends(database.get_db), 
+):
+    db_event = await eventsController.event_controller.get(db=db, id=event_id)
+    if not db_event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return await eventsController.event_controller.update(db=db, db_obj=db_event, obj_in=updated_event)
 
-
-@router.get("/event/{event_id}", response_model=eventsSchema.Event)
-async def read_event(event_id: int, db: AsyncSession = Depends(database.get_db)):
-    return await event_controller.get_event(event_id=event_id, db=db)
-
-
-@router.put("/event/{event_id}", response_model=eventsSchema.EventCreate)
-async def update_event(event_id: int, updated_event: eventsSchema.EventCreate,
-                      db: AsyncSession = Depends(database.get_db)):
-    return await event_controller.update_event(event_id=event_id, updated_event=updated_event, db=db)
-
-
-@router.delete("/event/{event_id}")
-async def delete_event(event_id: int, db: AsyncSession = Depends(database.get_db),
-                      ):
-    return await event_controller.delete_event(event_id=event_id, db=db)
+@router.delete("/event/{event_id}", response_model=Event)
+async def delete_event(
+    event_id: int, 
+    db: AsyncSession = Depends(database.get_db),
+):
+    deleted_event = await eventsController.event_controller.remove(db=db, id=event_id)
+    if not deleted_event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return deleted_event

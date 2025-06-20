@@ -1,69 +1,41 @@
-from typing import Optional, List
+# agenda-risetec-backend/app/controllers/eventsController.py
 
+from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.models.DefaultModels.eventsModel import Events
-from app.schemas import EventBase, EventCreate
+
+from app.controllers.base import CRUDBase
+from app.models.eventsModel import Events
+from app.schemas.eventsSchema import EventCreate, EventBase
 from app.utils import apply_filters_dynamic
 
+# NOVO: Classe CRUD específica para Events.
+class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
+    
+    # NOVO: Método para buscar um evento específico.
+    async def get_event(self, db: AsyncSession, *, id: int) -> Optional[Events]:
+        event = await super().get(db, id)
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Event not found",
+            )
+        return event
 
-async def create_event(db: AsyncSession, event: EventBase):
-    db_event = Events(**event.model_dump(exclude_none=True))
-    db.add(db_event)
-    await db.commit()
-    await db.refresh(db_event)
-    return db_event
+    # NOVO: Método customizado que mantém a lógica de filtros dinâmicos.
+    async def get_multi_filtered(
+        self, db: AsyncSession, *, skip: int, limit: int, filters: str, model: str
+    ) -> List[Events]:
+        query = select(self.model)
 
+        if filters and model:
+            query = apply_filters_dynamic(query, filters, model)
 
-async def get_events(db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[List[str]] = None,
-                    model: str = ""):
-    query = select(Events)
-
-    if filters and model:
-        query = apply_filters_dynamic(query, filters, model)
-    result = await db.execute(
-        query
-        .offset(skip)
-        .limit(limit if limit > 0 else None)
-    )
-    return result.scalars().unique().all()
-
-
-async def get_event(db: AsyncSession, event_id: int):
-    result = await db.execute(
-        select(Events)
-        .where(Events.id == event_id)
-    )
-    event = result.scalars().unique().first()
-    if not event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid id, not found",
+        result = await db.execute(
+            query.offset(skip).limit(limit if limit > 0 else None)
         )
-    return event
+        return result.scalars().unique().all()
 
-
-async def update_event(db: AsyncSession, event_id: int, updated_event: EventCreate):
-    result = await db.execute(select(Events).where(Events.id == event_id))
-    event = result.scalars().first()
-    if event is None:
-        return None
-
-    for key, value in updated_event.model_dump(exclude_none=True).items():
-        if str(value):
-            setattr(event, key, value)
-
-    await db.commit()
-    await db.refresh(event)
-    return event
-
-
-async def delete_event(db: AsyncSession, event_id: int):
-    result = await db.execute(select(Events).where(Events.id == event_id))
-    event = result.scalars().first()
-    if event is None:
-        return None
-    await db.delete(event)
-    await db.commit()
-    return event
+# NOVO: Instância do controller para ser usada nas rotas.
+event_controller = CRUDEvent(Events)

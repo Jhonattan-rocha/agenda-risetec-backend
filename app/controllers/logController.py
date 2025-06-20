@@ -1,13 +1,12 @@
 from typing import Optional, List
 
-from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from app.models.DefaultModels.logModel import Logger
-from app.models.DefaultModels.userModel import User
-from app.models.DefaultModels.userProfileModel import UserProfile
-from app.schemas import LoggerBase, LoggerCreate
+from app.models.logModel import Logger
+from app.models.userModel import User
+from app.models.userProfileModel import UserProfile
+from app.schemas.logSchema import LoggerBase, LoggerCreate
 from app.utils import apply_filters_dynamic
 
 async def create_log(db: AsyncSession, log: LoggerBase):

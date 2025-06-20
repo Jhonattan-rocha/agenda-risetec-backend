@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.schemas.CustomSchemas import GenericCreate
+from app.schemas.genericSchema import GenericCreate
 from app.Mapping import models_mapping, models_fields_mapping
 from app.utils.filter import apply_filters_dynamic
 from app.database import Base
