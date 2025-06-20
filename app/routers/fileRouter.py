@@ -8,7 +8,7 @@ from app.controllers.tokenController import verify_token
 from app.schemas import fileSchema
 import shutil, os, time
 
-router = APIRouter(prefix="/crud")
+router = APIRouter(prefix="/crud", tags=["Files"])
 
 # Upload de Arquivos
 @router.post("/files/", response_model=fileSchema.FileCreate)

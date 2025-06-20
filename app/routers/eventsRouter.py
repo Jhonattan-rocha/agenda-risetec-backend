@@ -8,7 +8,7 @@ from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.eventsSchema import Event, EventBase, EventCreate
 
-router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Events"])
 
 @router.post("/event/", response_model=Event)
 async def create_event(

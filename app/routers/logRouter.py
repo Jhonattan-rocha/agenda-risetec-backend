@@ -5,7 +5,7 @@ from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas import logSchema
 
-router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Log"])
 
 @router.post("/log/", response_model=logSchema.LoggerCreate)
 async def create_log(log: logSchema.LoggerBase, db: AsyncSession = Depends(database.get_db)):

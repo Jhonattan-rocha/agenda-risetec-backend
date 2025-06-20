@@ -14,11 +14,14 @@
             "name": "Apache 2.0",
             "identifier": "MIT"
         },
-        "version": "0.0.1"
+        "version": "0.0.2"
     },
     "paths": {
         "/crud/generic": {
             "post": {
+                "tags": [
+                    "Generic"
+                ],
                 "summary": "Generic Create",
                 "operationId": "generic_create_crud_generic_post",
                 "security": [
@@ -72,6 +75,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "Generic"
+                ],
                 "summary": "Generic Reads",
                 "operationId": "generic_reads_crud_generic_get",
                 "security": [
@@ -150,6 +156,9 @@
         },
         "/crud/generic/{generic_id}": {
             "get": {
+                "tags": [
+                    "Generic"
+                ],
                 "summary": "Generic Read",
                 "operationId": "generic_read_crud_generic__generic_id__get",
                 "security": [
@@ -202,6 +211,9 @@
                 }
             },
             "put": {
+                "tags": [
+                    "Generic"
+                ],
                 "summary": "Generic Update",
                 "operationId": "generic_update_crud_generic__generic_id__put",
                 "security": [
@@ -263,6 +275,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "Generic"
+                ],
                 "summary": "Generic Delete",
                 "operationId": "generic_delete_crud_generic__generic_id__delete",
                 "security": [
@@ -316,6 +331,9 @@
         },
         "/crud/user/": {
             "post": {
+                "tags": [
+                    "User"
+                ],
                 "summary": "Create User",
                 "operationId": "create_user_crud_user__post",
                 "requestBody": {
@@ -323,7 +341,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UserBase"
+                                "$ref": "#/components/schemas/UserCreate"
                             }
                         }
                     }
@@ -334,7 +352,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserCreate"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -352,6 +370,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "User"
+                ],
                 "summary": "Read Users",
                 "operationId": "read_users_crud_user__get",
                 "security": [
@@ -420,6 +441,9 @@
         },
         "/crud/user/{user_id}": {
             "get": {
+                "tags": [
+                    "User"
+                ],
                 "summary": "Read User",
                 "operationId": "read_user_crud_user__user_id__get",
                 "security": [
@@ -462,6 +486,9 @@
                 }
             },
             "put": {
+                "tags": [
+                    "User"
+                ],
                 "summary": "Update User",
                 "operationId": "update_user_crud_user__user_id__put",
                 "security": [
@@ -485,7 +512,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UserCreate"
+                                "$ref": "#/components/schemas/UserUpdate"
                             }
                         }
                     }
@@ -496,7 +523,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserCreate"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -514,6 +541,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "User"
+                ],
                 "summary": "Delete User",
                 "operationId": "delete_user_crud_user__user_id__delete",
                 "security": [
@@ -537,7 +567,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
@@ -556,8 +588,11 @@
         },
         "/crud/user_profile/": {
             "post": {
-                "summary": "Create User",
-                "operationId": "create_user_crud_user_profile__post",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Create User Profile",
+                "operationId": "create_user_profile_crud_user_profile__post",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -579,7 +614,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserProfileCreate"
+                                    "$ref": "#/components/schemas/UserProfile"
                                 }
                             }
                         }
@@ -597,8 +632,11 @@
                 }
             },
             "get": {
-                "summary": "Read Users",
-                "operationId": "read_users_crud_user_profile__get",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Read User Profiles",
+                "operationId": "read_user_profiles_crud_user_profile__get",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -645,7 +683,7 @@
                                     "items": {
                                         "$ref": "#/components/schemas/UserProfile"
                                     },
-                                    "title": "Response Read Users Crud User Profile  Get"
+                                    "title": "Response Read User Profiles Crud User Profile  Get"
                                 }
                             }
                         }
@@ -665,8 +703,11 @@
         },
         "/crud/user_profile/{user_profile_id}": {
             "get": {
-                "summary": "Read User",
-                "operationId": "read_user_crud_user_profile__user_profile_id__get",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Read User Profile",
+                "operationId": "read_user_profile_crud_user_profile__user_profile_id__get",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -707,8 +748,11 @@
                 }
             },
             "put": {
-                "summary": "Update User",
-                "operationId": "update_user_crud_user_profile__user_profile_id__put",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update User Profile",
+                "operationId": "update_user_profile_crud_user_profile__user_profile_id__put",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -741,7 +785,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserProfileCreate"
+                                    "$ref": "#/components/schemas/UserProfile"
                                 }
                             }
                         }
@@ -759,8 +803,11 @@
                 }
             },
             "delete": {
-                "summary": "Delete User",
-                "operationId": "delete_user_crud_user_profile__user_profile_id__delete",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Delete User Profile",
+                "operationId": "delete_user_profile_crud_user_profile__user_profile_id__delete",
                 "security": [
                     {
                         "OAuth2PasswordBearer": []
@@ -782,7 +829,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserProfile"
+                                }
                             }
                         }
                     },
@@ -801,6 +850,9 @@
         },
         "/crud/permissions/": {
             "post": {
+                "tags": [
+                    "Permission"
+                ],
                 "summary": "Create Permission",
                 "operationId": "create_permission_crud_permissions__post",
                 "security": [
@@ -824,7 +876,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PermissionsCreate"
+                                    "$ref": "#/components/schemas/Permissions"
                                 }
                             }
                         }
@@ -842,13 +894,11 @@
                 }
             },
             "get": {
+                "tags": [
+                    "Permission"
+                ],
                 "summary": "Read Permissions",
                 "operationId": "read_permissions_crud_permissions__get",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "skip",
@@ -901,13 +951,11 @@
         },
         "/crud/permissions/{permission_id}": {
             "get": {
+                "tags": [
+                    "Permission"
+                ],
                 "summary": "Read Permission",
                 "operationId": "read_permission_crud_permissions__permission_id__get",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -943,13 +991,11 @@
                 }
             },
             "put": {
+                "tags": [
+                    "Permission"
+                ],
                 "summary": "Update Permission",
                 "operationId": "update_permission_crud_permissions__permission_id__put",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -977,7 +1023,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PermissionsCreate"
+                                    "$ref": "#/components/schemas/Permissions"
                                 }
                             }
                         }
@@ -995,13 +1041,11 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "Permission"
+                ],
                 "summary": "Delete Permission",
                 "operationId": "delete_permission_crud_permissions__permission_id__delete",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -1018,7 +1062,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/Permissions"
+                                }
                             }
                         }
                     },
@@ -1037,13 +1083,16 @@
         },
         "/crud/token/": {
             "post": {
-                "summary": "Login",
-                "operationId": "login_crud_token__post",
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Login For Access Token",
+                "operationId": "login_for_access_token_crud_token__post",
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_login_crud_token__post"
+                                "$ref": "#/components/schemas/Body_login_for_access_token_crud_token__post"
                             }
                         }
                     },
@@ -1075,6 +1124,9 @@
         },
         "/crud/files/": {
             "post": {
+                "tags": [
+                    "Files"
+                ],
                 "summary": "Create File",
                 "operationId": "create_file_crud_files__post",
                 "security": [
@@ -1116,6 +1168,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "Files"
+                ],
                 "summary": "Read Files",
                 "operationId": "read_files_crud_files__get",
                 "security": [
@@ -1195,6 +1250,9 @@
         },
         "/crud/files/download/{file_id}": {
             "get": {
+                "tags": [
+                    "Files"
+                ],
                 "summary": "Download File",
                 "operationId": "download_file_crud_files_download__file_id__get",
                 "parameters": [
@@ -1227,6 +1285,9 @@
         },
         "/crud/files/{file_id}": {
             "get": {
+                "tags": [
+                    "Files"
+                ],
                 "summary": "Read File",
                 "operationId": "read_file_crud_files__file_id__get",
                 "security": [
@@ -1269,6 +1330,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "Files"
+                ],
                 "summary": "Delete File",
                 "operationId": "delete_file_crud_files__file_id__delete",
                 "security": [
@@ -1314,6 +1378,9 @@
         },
         "/crud/log/": {
             "post": {
+                "tags": [
+                    "Log"
+                ],
                 "summary": "Create Log",
                 "operationId": "create_log_crud_log__post",
                 "requestBody": {
@@ -1357,6 +1424,9 @@
         },
         "/crud/logs/": {
             "get": {
+                "tags": [
+                    "Log"
+                ],
                 "summary": "Read Logs",
                 "operationId": "read_logs_crud_logs__get",
                 "security": [
@@ -1425,6 +1495,9 @@
         },
         "/crud/event/": {
             "post": {
+                "tags": [
+                    "Events"
+                ],
                 "summary": "Create Event",
                 "operationId": "create_event_crud_event__post",
                 "security": [
@@ -1448,7 +1521,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/EventCreate"
+                                    "$ref": "#/components/schemas/Event"
                                 }
                             }
                         }
@@ -1466,6 +1539,9 @@
                 }
             },
             "get": {
+                "tags": [
+                    "Events"
+                ],
                 "summary": "Read Events",
                 "operationId": "read_events_crud_event__get",
                 "security": [
@@ -1534,6 +1610,9 @@
         },
         "/crud/event/{event_id}": {
             "get": {
+                "tags": [
+                    "Events"
+                ],
                 "summary": "Read Event",
                 "operationId": "read_event_crud_event__event_id__get",
                 "security": [
@@ -1576,6 +1655,9 @@
                 }
             },
             "put": {
+                "tags": [
+                    "Events"
+                ],
                 "summary": "Update Event",
                 "operationId": "update_event_crud_event__event_id__put",
                 "security": [
@@ -1610,7 +1692,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/EventCreate"
+                                    "$ref": "#/components/schemas/Event"
                                 }
                             }
                         }
@@ -1628,6 +1710,9 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "Events"
+                ],
                 "summary": "Delete Event",
                 "operationId": "delete_event_crud_event__event_id__delete",
                 "security": [
@@ -1651,7 +1736,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
                             }
                         }
                     },
@@ -1670,8 +1757,16 @@
         },
         "/crud/calendar/": {
             "post": {
+                "tags": [
+                    "Calendars"
+                ],
                 "summary": "Create Calendar",
                 "operationId": "create_calendar_crud_calendar__post",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1688,7 +1783,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CalendarCreate"
+                                    "$ref": "#/components/schemas/Calendar"
                                 }
                             }
                         }
@@ -1706,13 +1801,11 @@
                 }
             },
             "get": {
+                "tags": [
+                    "Calendars"
+                ],
                 "summary": "Read Calendars",
                 "operationId": "read_calendars_crud_calendar__get",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "filters",
@@ -1774,13 +1867,11 @@
         },
         "/crud/calendar/{calendar_id}": {
             "get": {
+                "tags": [
+                    "Calendars"
+                ],
                 "summary": "Read Calendar",
                 "operationId": "read_calendar_crud_calendar__calendar_id__get",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -1816,13 +1907,11 @@
                 }
             },
             "put": {
+                "tags": [
+                    "Calendars"
+                ],
                 "summary": "Update Calendar",
                 "operationId": "update_calendar_crud_calendar__calendar_id__put",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -1850,7 +1939,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CalendarCreate"
+                                    "$ref": "#/components/schemas/Calendar"
                                 }
                             }
                         }
@@ -1868,13 +1957,11 @@
                 }
             },
             "delete": {
+                "tags": [
+                    "Calendars"
+                ],
                 "summary": "Delete Calendar",
                 "operationId": "delete_calendar_crud_calendar__calendar_id__delete",
-                "security": [
-                    {
-                        "OAuth2PasswordBearer": []
-                    }
-                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -1891,7 +1978,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/Calendar"
+                                }
                             }
                         }
                     },
@@ -1925,7 +2014,7 @@
                 ],
                 "title": "Body_create_file_crud_files__post"
             },
-            "Body_login_crud_token__post": {
+            "Body_login_for_access_token_crud_token__post": {
                 "properties": {
                     "grant_type": {
                         "anyOf": [
@@ -1980,7 +2069,7 @@
                     "username",
                     "password"
                 ],
-                "title": "Body_login_crud_token__post"
+                "title": "Body_login_for_access_token_crud_token__post"
             },
             "Calendar": {
                 "properties": {
@@ -2375,7 +2464,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T08:20:52.064449"
+                        "default": "2025-06-20T13:27:21.520755"
                     },
                     "action": {
                         "type": "string",
@@ -2419,7 +2508,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T08:20:52.064449"
+                        "default": "2025-06-20T13:27:21.520755"
                     },
                     "action": {
                         "type": "string",
@@ -2447,7 +2536,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T08:20:52.064449"
+                        "default": "2025-06-20T13:27:21.520755"
                     },
                     "action": {
                         "type": "string",
@@ -2675,59 +2764,6 @@
                 ],
                 "title": "User"
             },
-            "UserBase": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
-                    "email": {
-                        "type": "string",
-                        "title": "Email"
-                    },
-                    "password": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Password",
-                        "default": ""
-                    },
-                    "salt": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Salt",
-                        "default": ""
-                    },
-                    "profile_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Profile Id"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "name",
-                    "email"
-                ],
-                "title": "UserBase"
-            },
             "UserCreate": {
                 "properties": {
                     "name": {
@@ -2738,30 +2774,6 @@
                         "type": "string",
                         "title": "Email"
                     },
-                    "password": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Password",
-                        "default": ""
-                    },
-                    "salt": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Salt",
-                        "default": ""
-                    },
                     "profile_id": {
                         "anyOf": [
                             {
@@ -2773,16 +2785,16 @@
                         ],
                         "title": "Profile Id"
                     },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
                     }
                 },
                 "type": "object",
                 "required": [
                     "name",
                     "email",
-                    "id"
+                    "password"
                 ],
                 "title": "UserCreate"
             },
@@ -2849,6 +2861,56 @@
                     "id"
                 ],
                 "title": "UserProfileCreate"
+            },
+            "UserUpdate": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email"
+                    },
+                    "profile_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Profile Id"
+                    },
+                    "password": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "title": "UserUpdate"
             },
             "ValidationError": {
                 "properties": {

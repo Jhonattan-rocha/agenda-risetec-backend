@@ -1,32 +1,42 @@
+// whatsapp-service/index.js
+
 const express = require('express');
-const { client, initialize } = require('./client');
+// NOVO: Importa a função getState
+const { client, initialize, getState } = require('./whatsapp-client');
 
 const app = express();
 const port = 3000;
 
-// Middleware para parsear o corpo das requisições como JSON
 app.use(express.json());
 
-// Endpoint de verificação de status
+// ALTERADO: O endpoint de status agora retorna o estado detalhado
 app.get('/status', (req, res) => {
-    res.status(200).json({ status: 'Serviço de WhatsApp está online e pronto.' });
+    const currentState = getState();
+    res.status(200).json(currentState);
 });
 
-// Endpoint para enviar mensagens
+// NOVO: Endpoint para forçar a reinicialização do cliente
+app.post('/reconnect', (req, res) => {
+    console.log('Recebida requisição para reconectar...');
+    initialize(); // Chama a função de inicialização
+    res.status(202).json({ success: true, message: 'Processo de reinicialização iniciado.' });
+});
+
+// Endpoint para enviar mensagens (sem alterações)
 app.post('/send-message', async (req, res) => {
-    const { number, message } = req.body; // Pega número e mensagem do corpo da requisição
+    const { number, message } = req.body;
+
+    if (getState().status !== 'READY') {
+        return res.status(409).json({ success: false, error: 'O cliente de WhatsApp não está pronto.' });
+    }
 
     if (!number || !message) {
         return res.status(400).json({ success: false, error: 'Número e mensagem são obrigatórios.' });
     }
 
     try {
-        // Formata o número para o padrão do WhatsApp (ex: 5511999998888@c.us)
         const chatId = `${number.replace('+', '')}@c.us`;
-
-        console.log(`Enviando mensagem para: ${chatId}`);
         await client.sendMessage(chatId, message);
-        
         res.status(200).json({ success: true, message: 'Mensagem enviada com sucesso!' });
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
@@ -34,7 +44,6 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-// Inicia o servidor Express
 app.listen(port, () => {
     console.log(`Servidor da API de WhatsApp rodando em http://localhost:${port}`);
     initialize();

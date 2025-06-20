@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean
-from app.database import Base
+from app.database.database import Base
 from sqlalchemy.orm import relationship
 
 class Calendar(Base):

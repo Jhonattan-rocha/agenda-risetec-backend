@@ -10,7 +10,7 @@ from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.userProfileSchema import UserProfile, UserProfileBase, UserProfileCreate
 
-router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Profile"])
 
 @router.post("/user_profile/", response_model=UserProfile)
 async def create_user_profile(

@@ -8,3 +8,4 @@ python-jose[cryptography]
 passlib[bcrypt] # <-- Biblioteca para hashing de senhas
 python-multipart # Para upload de arquivos
 httpx
+bcrypt

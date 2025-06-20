@@ -7,7 +7,7 @@ from app.database import database
 from app.schemas.permissionsSchema import Permissions, PermissionsBase, PermissionsCreate
 from app.controllers.tokenController import verify_token
 
-router = APIRouter(prefix="/crud")
+router = APIRouter(prefix="/crud", tags=["Permission"])
 
 @router.post("/permissions/", response_model=Permissions, dependencies=[Depends(verify_token)])
 async def create_permission(

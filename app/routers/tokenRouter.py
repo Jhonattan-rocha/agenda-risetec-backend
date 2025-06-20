@@ -10,7 +10,7 @@ from app.schemas.tokenSchema import Token
 from app.core.security import create_access_token
 from app.core.config import settings
 
-router = APIRouter(prefix="/crud")
+router = APIRouter(prefix="/crud", tags=["Login"])
 
 @router.post("/token/", response_model=Token)
 async def login_for_access_token(

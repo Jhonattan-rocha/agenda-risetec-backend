@@ -1,7 +1,7 @@
 # agenda-risetec-backend/app/models/eventsModel.py
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
-from app.database import Base
+from app.database.database import Base
 from datetime import datetime
 
 class Events(Base):

@@ -5,7 +5,7 @@ from app.database import database
 from app.schemas import genericSchema
 from app.controllers.tokenController import verify_token
 
-router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Generic"])
 
 
 @router.post("/generic", response_model=genericSchema.GenericCreate)

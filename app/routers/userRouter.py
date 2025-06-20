@@ -5,14 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers import userController
 from app.database import database
-from app.schemas.userSchema import User, UserCreate, UserBase, UserUpdate
+from app.schemas.userSchema import User, UserCreate, UserUpdate
 from app.controllers.tokenController import verify_token
 
-router = APIRouter(prefix="/crud")
+router = APIRouter(prefix="/crud", tags=["User"])
 
 
 @router.post("/user/", response_model=User)
-async def create_user(user: UserBase, db: AsyncSession = Depends(database.get_db)):
+async def create_user(user: UserCreate, db: AsyncSession = Depends(database.get_db)):
     return await userController.user_controller.create(db=db, obj_in=user)
 
 
