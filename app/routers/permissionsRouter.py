@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-# ALTERAÇÃO: Importa a instância do controller.
 from app.controllers import permissonsController
 from app.database import database
 from app.schemas.permissionsSchema import Permissions, PermissionsBase, PermissionsCreate

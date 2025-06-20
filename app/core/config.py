@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-
+    WHATSAPP_SERVICE_URL: str
+    
     # Configurações de Email
     MAIL_USERNAME: str
     MAIL_PASSWORD: str

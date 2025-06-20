@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from app.schemas.genericSchema import GenericCreate
 from app.Mapping import models_mapping, models_fields_mapping
 from app.utils.filter import apply_filters_dynamic
-from app.database import Base
+from app.database.database import Base
 from sqlalchemy.orm.collections import InstrumentedList
 
 

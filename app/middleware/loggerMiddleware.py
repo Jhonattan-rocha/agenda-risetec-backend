@@ -2,10 +2,11 @@ import json
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request, HTTPException, status
 import jwt
-from app.database import SessionLocal
-from app.controllers.DefaultControllers import get_user, create_log
-from app.controllers.DefaultControllers import SECRET_KEY, ALGORITHM
-from app.schemas.DefaultSchemas import LoggerBase
+from app.database.database import SessionLocal
+from app.controllers.userController import user_controller
+from app.controllers.logController import create_log
+from app.schemas.logSchema import LoggerBase
+from app.core.config import settings
 import datetime
 import os
 
@@ -27,7 +28,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             # Busca informações do usuário
             if user_id:
                 try:
-                    user = await get_user(db, user_id)
+                    user = await user_controller.get_user_with_details(db=db, user_id=user_id)
                     user_info = {
                         "email": user.email,
                         "id": user.id, 
@@ -103,7 +104,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         token = auth_header.split(" ")[1]
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
             return payload.get("id")
         except Exception:
             return None
