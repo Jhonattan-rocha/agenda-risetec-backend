@@ -1,38 +1,65 @@
-from fastapi import APIRouter, Depends
+# agenda-risetec-backend/app/routers/userRouter.py
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.controllers import userController as user_controller
-from app.controllers.tokenController import verify_token
+
+from app.controllers import userController
 from app.database import database
-from app.schemas.DefaultSchemas import userSchema
+from app.schemas.userSchema import User, UserCreate, UserBase, UserUpdate
+from app.controllers.tokenController import verify_token
 
 router = APIRouter(prefix="/crud")
 
 
-@router.post("/user/", response_model=userSchema.UserCreate)
-async def create_user(user: userSchema.UserBase, db: AsyncSession = Depends(database.get_db),):
-    return await user_controller.create_user(user=user, db=db)
+@router.post("/user/", response_model=User)
+async def create_user(user: UserBase, db: AsyncSession = Depends(database.get_db)):
+    return await userController.user_controller.create(db=db, obj_in=user)
 
 
-@router.get("/user/", response_model=list[userSchema.User])
-async def read_users(filters: str = None, skip: int = 0, limit: int = 10,
-                     db: AsyncSession = Depends(database.get_db),
-                     validation: str = Depends(verify_token)):
-    result = await user_controller.get_users(skip=skip, limit=limit, db=db, filters=filters, model="User")
-    return result
+@router.get("/user/", response_model=list[User])
+async def read_users(
+    filters: str = None, 
+    skip: int = 0, 
+    limit: int = 10,
+    db: AsyncSession = Depends(database.get_db),
+    current_user_id: int = Depends(verify_token)
+):
+    # ALTERAÇÃO: usa o método customizado do controller para carregar detalhes
+    return await userController.user_controller.get_users_with_details(
+        db=db, skip=skip, limit=limit, filters=filters, model="User"
+    )
 
 
-@router.get("/user/{user_id}", response_model=userSchema.User)
-async def read_user(user_id: int, db: AsyncSession = Depends(database.get_db), validation: str = Depends(verify_token)):
-    return await user_controller.get_user(user_id=user_id, db=db)
+@router.get("/user/{user_id}", response_model=User)
+async def read_user(
+    user_id: int, 
+    db: AsyncSession = Depends(database.get_db), 
+    current_user_id: int = Depends(verify_token)
+):
+    # ALTERAÇÃO: usa o método customizado do controller para carregar detalhes
+    return await userController.user_controller.get_user_with_details(db=db, user_id=user_id)
 
 
-@router.put("/user/{user_id}", response_model=userSchema.UserCreate)
-async def update_user(user_id: int, updated_user: userSchema.UserCreate,
-                      db: AsyncSession = Depends(database.get_db), validation: str = Depends(verify_token)):
-    return await user_controller.update_user(user_id=user_id, updated_user=updated_user, db=db)
+@router.put("/user/{user_id}", response_model=User)
+async def update_user(
+    user_id: int, 
+    updated_user: UserUpdate,
+    db: AsyncSession = Depends(database.get_db), 
+    current_user_id: int = Depends(verify_token)
+):
+    db_user = await userController.user_controller.get(db=db, id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return await userController.user_controller.update(db=db, db_obj=db_user, obj_in=updated_user)
 
 
-@router.delete("/user/{user_id}")
-async def delete_user(user_id: int, db: AsyncSession = Depends(database.get_db),
-                      validation: str = Depends(verify_token)):
-    return await user_controller.delete_user(user_id=user_id, db=db)
+@router.delete("/user/{user_id}", response_model=User)
+async def delete_user(
+    user_id: int, 
+    db: AsyncSession = Depends(database.get_db),
+    current_user_id: int = Depends(verify_token)
+):
+    deleted_user = await userController.user_controller.remove(db=db, id=user_id)
+    if not deleted_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return deleted_user

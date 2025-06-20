@@ -10,4 +10,4 @@ class Calendar(Base):
     color = Column(String(255), default="")
     visible = Column(Boolean, default=True)
 
-    events = relationship("Events", lazy="joined", cascade="all, delete-orphan")
+    events = relationship("Events", lazy="selectin", cascade="all, delete-orphan")

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers import fileController as file_controller
 from app.database import database
 from app.controllers.tokenController import verify_token
-from app.schemas.DefaultSchemas import fileSchema
+from app.schemas import fileSchema
 import shutil, os, time
 
 router = APIRouter(prefix="/crud")

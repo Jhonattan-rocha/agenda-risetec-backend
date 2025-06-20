@@ -1,26 +1,28 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from app.schemas.userProfileSchema import UserProfile
-from app.schemas.eventsSchema import Event
+from .userProfileSchema import UserProfile
+from .eventsSchema import Event
 
 class UserBase(BaseModel):
     name: str
     email: str
-    password: Optional[str] = ""
-    salt: Optional[str] = ""
     profile_id: Optional[int] = None
 
-
 class UserCreate(UserBase):
-    id: int
+    password: str
 
+# NOVO: Schema para atualização, onde a senha é opcional.
+class UserUpdate(UserBase):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 class User(UserBase):
     id: int
+    # ALTERAÇÃO: Campo 'salt' removido
     password: Optional[str] = Field(exclude=True)
-    salt: Optional[str] = Field(exclude=True)
-    profile: Optional["UserProfile"]
-    events: List[Optional["Event"]]
+    profile: Optional[UserProfile]
+    events: List[Optional[Event]]
     
     class Config:
         from_attributes = True

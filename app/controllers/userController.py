@@ -1,78 +1,77 @@
-from typing import Optional, List
+# agenda-risetec-backend/app/controllers/userController.py
 
+from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from app.models.DefaultModels.userModel import User
-from app.models.DefaultModels.eventsModel import Events
-from app.models.DefaultModels.userProfileModel import UserProfile
-from app.schemas import UserBase, UserCreate
-from app.utils import gen_random_string, apply_filters_dynamic
-import hashlib
 
+from app.controllers.base import CRUDBase
+from app.models.userModel import User
+from app.models.userProfileModel import UserProfile
+from app.schemas.userSchema import UserCreate, UserBase, UserUpdate
+from app.core.security import get_password_hash, verify_password
+from app.utils import apply_filters_dynamic
 
-async def create_user(db: AsyncSession, user: UserBase):
-    user.salt = gen_random_string(15)
-    hash_password = hashlib.sha256(user.salt.encode()).hexdigest() + hashlib.sha256(user.password.encode()).hexdigest()
-    user.password = hashlib.sha256(hash_password.encode()).hexdigest()
-    db_user = User(**user.model_dump(exclude_none=True))
-    db.add(db_user)
-    await db.commit()
-    await db.refresh(db_user)
-    return db_user
+# NOVO: Herda de CRUDBase
+class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+    async def create(self, db: AsyncSession, *, obj_in: UserBase) -> User:
+        # ALTERAÇÃO: Usa o novo sistema de hashing
+        hashed_password = get_password_hash(obj_in.password)
+        
+        create_data = obj_in.model_dump()
+        create_data.pop("password", None) # Remove a senha em texto plano
+        
+        db_obj = self.model(**create_data, password=hashed_password)
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
 
-
-async def get_users(db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[List[str]] = None,
-                    model: str = ""):
-    query = select(User)
-
-    if filters and model:
-        query = apply_filters_dynamic(query, filters, model)
-    result = await db.execute(
-        query
-        .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
-        .offset(skip)
-        .limit(limit if limit > 0 else None)
-    )
-    return result.scalars().unique().all()
-
-
-async def get_user(db: AsyncSession, user_id: int):
-    result = await db.execute(
-        select(User)
-        .options(joinedload(User.profile).joinedload(UserProfile.permissions))
-        .where(User.id == user_id)
-    )
-    user = result.scalars().unique().first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid id, not found",
+    async def authenticate(
+        self, db: AsyncSession, *, email: str, password: str
+    ) -> Optional[User]:
+        # NOVO: Lógica de autenticação centralizada aqui
+        result = await db.execute(
+            select(self.model)
+            .options(joinedload(User.profile).joinedload(UserProfile.permissions))
+            .where(self.model.email == email)
         )
-    return user
+        user = result.scalars().first()
+        if not user:
+            return None
+        if not verify_password(password, user.password):
+            return None
+        return user
+    
+    # Mantém métodos com lógica customizada (filtros, joins)
+    async def get_users_with_details(self, db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[str] = None, model: str = ""):
+        query = select(self.model)
 
+        if filters and model:
+            query = apply_filters_dynamic(query, filters, model)
+            
+        result = await db.execute(
+            query
+            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
+            .offset(skip)
+            .limit(limit if limit > 0 else None)
+        )
+        return result.scalars().unique().all()
 
-async def update_user(db: AsyncSession, user_id: int, updated_user: UserCreate):
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
-    if user is None:
-        return None
+    async def get_user_with_details(self, db: AsyncSession, user_id: int):
+        result = await db.execute(
+            select(self.model)
+            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
+            .where(self.model.id == user_id)
+        )
+        user = result.scalars().unique().first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+        return user
 
-    for key, value in updated_user.model_dump(exclude_none=True).items():
-        if str(value):
-            setattr(user, key, value)
-
-    await db.commit()
-    await db.refresh(user)
-    return user
-
-
-async def delete_user(db: AsyncSession, user_id: int):
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
-    if user is None:
-        return None
-    await db.delete(user)
-    await db.commit()
-    return user
+# Instância do controller para ser usada nas rotas
+user_controller = CRUDUser(User)

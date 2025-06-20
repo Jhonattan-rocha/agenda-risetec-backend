@@ -1,3 +1,5 @@
+# agenda-risetec-backend/main.py
+
 import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -5,28 +7,33 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.middleware.loggerMiddleware import LoggingMiddleware
 from app.middleware.securityHeaders import SecurityHeadersMiddleware
-from app.routers.DefaultRouters.userRouter import router as userRouter
-from app.routers.DefaultRouters.userProfileRouter import router as userProfileRouter
-from app.routers.DefaultRouters.permissionsRouter import router as permissionsRouter
-from app.routers.DefaultRouters.tokenRouter import router as tokenRouter
-from app.routers.DefaultRouters.fileRouter import router as fileRouter
-from app.routers.DefaultRouters.logRouter import router as logRouter
-from app.routers.CustomRouters.genericRouter import router as genericRouter
-from app.routers.DefaultRouters.eventsRouter import router as eventsRouter
-from app.routers.DefaultRouters.calendarRouter import router as calendarRouter
 import os
+
+# NOVO: Lista centralizada de roteadores para inclusão automática
+from app.routers import (
+    userRouter, userProfileRouter, permissionsRouter, tokenRouter,
+    fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter
+)
+
+# NOVO: Agrupa todos os roteadores em uma lista para facilitar o registro
+all_routers = [
+    genericRouter.router,
+    userRouter.router,
+    userProfileRouter.router,
+    permissionsRouter.router,
+    tokenRouter.router,
+    fileRouter.router,
+    logRouter.router,
+    eventsRouter.router,
+    calendarRouter.router
+]
 
 @asynccontextmanager
 async def lifespan_startup(app: FastAPI):
-    app.include_router(genericRouter)
-    app.include_router(userRouter)
-    app.include_router(userProfileRouter)
-    app.include_router(permissionsRouter)
-    app.include_router(tokenRouter)
-    app.include_router(fileRouter)
-    app.include_router(logRouter)
-    app.include_router(eventsRouter)
-    app.include_router(calendarRouter)
+    # NOVO: Itera sobre a lista de roteadores e os inclui na aplicação
+    for router in all_routers:
+        app.include_router(router)
+    
     generate_doc()
     async with database.engine.begin() as conn:
         await conn.run_sync(database.Base.metadata.create_all)
@@ -35,6 +42,7 @@ async def lifespan_startup(app: FastAPI):
 
 
 def generate_doc():
+    # Esta função pode ser movida para um script de build/deploy em um ambiente de produção
     with open("openapi.json", "w") as f:
         json.dump(app.openapi(), f, indent=4)
 
@@ -43,7 +51,7 @@ app = FastAPI(lifespan=lifespan_startup,
               title="Agenda Risetec",
               description="API under development",
               summary="Routes of app",
-              version="0.0.1",
+              version="0.0.2", # Versão atualizada
               terms_of_service="http://example.com/terms/",
               contact={
                   "name": "Jhonattan Rocha da Silva",
@@ -55,6 +63,7 @@ app = FastAPI(lifespan=lifespan_startup,
                   "identifier": "MIT",
               })
 
+# ATENÇÃO: Em produção, evite usar "*" e especifique as origens permitidas.
 origins = [
     "https://localhost:3000",
     "https://localhost:5173",
@@ -65,10 +74,11 @@ static_path = os.path.join(".", "files")
 
 app.add_middleware(
     middleware_class=CORSMiddleware,
-    allow_origins=origins,  # Permite essas origens
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos (GET, POST, etc.)
-    allow_headers=["*"],  # Permite todos os cabeçalhos
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.add_middleware(SecurityHeadersMiddleware)
+# O LoggingMiddleware está comentado, mantendo o comportamento original.
 # app.add_middleware(LoggingMiddleware)

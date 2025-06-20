@@ -2,15 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.controllers.genericController import GenericController
 from app.database import database
-from app.schemas.CustomSchemas import genericSchema
-from app.controllers import verify_token
+from app.schemas import genericSchema
+from app.controllers.tokenController import verify_token
 
-router = APIRouter(prefix="/crud")
+router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)])
 
 
 @router.post("/generic", response_model=genericSchema.GenericCreate)
 async def generic_create(generic: genericSchema.GenericCreate,
-                         db: AsyncSession = Depends(database.get_db), model: str = "", validation: str = Depends(verify_token)):
+                         db: AsyncSession = Depends(database.get_db), model: str = ""):
 
 
     generic_controller = GenericController(model=model)
@@ -26,7 +26,7 @@ async def generic_create(generic: genericSchema.GenericCreate,
 
 @router.get("/generic", response_model=list[genericSchema.GenericCreate])
 async def generic_reads(skip: int = 0, limit: int = 10, model: str = "",
-                        db: AsyncSession = Depends(database.get_db), filters: str = None, validation: str = Depends(verify_token)):
+                        db: AsyncSession = Depends(database.get_db), filters: str = None):
 
 
     generic_controller = GenericController(model=model)
@@ -40,7 +40,7 @@ async def generic_reads(skip: int = 0, limit: int = 10, model: str = "",
 
 @router.get("/generic/{generic_id}",
             response_model=genericSchema.GenericCreate)
-async def generic_read(generic_id: int, model: str = "", db: AsyncSession = Depends(database.get_db), validation: str = Depends(verify_token)):
+async def generic_read(generic_id: int, model: str = "", db: AsyncSession = Depends(database.get_db)):
 
 
     generic_controller = GenericController(model=model)
@@ -57,7 +57,7 @@ async def generic_read(generic_id: int, model: str = "", db: AsyncSession = Depe
 async def generic_update(generic_id: int,
                          model: str,
                          updated_generic: genericSchema.GenericCreate,
-                         db: AsyncSession = Depends(database.get_db), validation: str = Depends(verify_token)):
+                         db: AsyncSession = Depends(database.get_db)):
 
 
     generic_controller = GenericController(model=model)
@@ -68,7 +68,7 @@ async def generic_update(generic_id: int,
 
 
 @router.delete("/generic/{generic_id}", response_model=genericSchema.GenericCreate)
-async def generic_delete(generic_id: int, model: str, db: AsyncSession = Depends(database.get_db), validation: str = Depends(verify_token)):
+async def generic_delete(generic_id: int, model: str, db: AsyncSession = Depends(database.get_db)):
 
 
     generic_controller = GenericController(model=model)
