@@ -1,5 +1,3 @@
-# seu_projeto_principal/manage_services.py
-
 import subprocess
 import threading
 import os
@@ -11,14 +9,14 @@ import time
 # Altere aqui se os nomes das pastas ou comandos forem diferentes.
 
 # Serviço de WhatsApp (Node.js)
-WHATSAPP_SERVICE_DIR = 'whatsapp-service'
+WHATSAPP_SERVICE_DIR = r'whatsapp'
 WHATSAPP_COMMAND = ['node', 'index.js']
-WHATSAPP_LOG = 'whatsapp_service.log'
+WHATSAPP_LOG = r'whatsapp_service.log'
 
 # Serviço da API Principal (FastAPI)
-API_SERVICE_DIR = 'agenda-risetec-backend'
-API_COMMAND = ['uvicorn', 'main:app', '--host', '0.0.0.0', '--port', '8000']
-API_LOG = 'api_service.log'
+API_SERVICE_DIR = r'C:\Users\Jhonattan.rocha\Documents\projetos\agenda-risetec-backend'
+API_COMMAND = ['hypercorn', 'main:app', '--bind', '0.0.0.0:9000']
+API_LOG = r'api_service.log'
 
 # --- Gerenciador de Processos ---
 

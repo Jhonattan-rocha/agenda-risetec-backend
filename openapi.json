@@ -1996,6 +1996,81 @@
                     }
                 }
             }
+        },
+        "/crud/whatsapp/status": {
+            "get": {
+                "tags": [
+                    "Admin - WhatsApp"
+                ],
+                "summary": "Get Whatsapp Status",
+                "description": "Obt\u00e9m o status atual do servi\u00e7o de WhatsApp.\nSe o status for 'SCAN_QR', o campo 'qrCode' conter\u00e1 os dados para gerar a imagem.",
+                "operationId": "get_whatsapp_status_crud_whatsapp_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/crud/whatsapp/reconnect": {
+            "post": {
+                "tags": [
+                    "Admin - WhatsApp"
+                ],
+                "summary": "Reconnect Whatsapp Service",
+                "description": "Envia um comando para o servi\u00e7o de WhatsApp tentar se reconectar.\n\u00datil se o servi\u00e7o estiver no estado 'DISCONNECTED'.",
+                "operationId": "reconnect_whatsapp_service_crud_whatsapp_reconnect_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/crud/whatsapp/logout": {
+            "post": {
+                "tags": [
+                    "Admin - WhatsApp"
+                ],
+                "summary": "Logout Whatsapp Service",
+                "description": "Desconecta a sess\u00e3o atual do WhatsApp.\nO servi\u00e7o entrar\u00e1 no estado 'DISCONNECTED' e ser\u00e1 necess\u00e1rio reconectar e escanear um novo QR Code.",
+                "operationId": "logout_whatsapp_service_crud_whatsapp_logout_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2201,20 +2276,24 @@
                         "type": "integer",
                         "title": "Calendar Id"
                     },
-                    "user_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "User Id"
-                    },
                     "id": {
                         "type": "integer",
                         "title": "Id"
+                    },
+                    "users": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Users",
+                        "default": []
                     }
                 },
                 "type": "object",
@@ -2265,17 +2344,6 @@
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
-                    },
-                    "user_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "User Id"
                     }
                 },
                 "type": "object",
@@ -2325,17 +2393,6 @@
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
-                    },
-                    "user_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "User Id"
                     },
                     "id": {
                         "type": "integer",
@@ -2464,7 +2521,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T13:27:21.520755"
+                        "default": "2025-06-20T16:19:50.686755"
                     },
                     "action": {
                         "type": "string",
@@ -2508,7 +2565,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T13:27:21.520755"
+                        "default": "2025-06-20T16:19:50.686755"
                     },
                     "action": {
                         "type": "string",
@@ -2536,7 +2593,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T13:27:21.520755"
+                        "default": "2025-06-20T16:19:50.686755"
                     },
                     "action": {
                         "type": "string",

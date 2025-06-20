@@ -1,8 +1,5 @@
-# agenda-risetec-backend/app/routers/eventsRouter.py
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-# ALTERAÇÃO: Importa a instância do controller.
 from app.controllers import eventsController
 from app.controllers.tokenController import verify_token
 from app.database import database

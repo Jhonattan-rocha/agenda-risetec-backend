@@ -1,8 +1,6 @@
-// whatsapp-service/index.js
-
 const express = require('express');
 // NOVO: Importa a função getState
-const { client, initialize, getState } = require('./whatsapp-client');
+const { client, initialize, getState } = require('./client');
 
 const app = express();
 const port = 3000;
@@ -41,6 +39,16 @@ app.post('/send-message', async (req, res) => {
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
         res.status(500).json({ success: false, error: 'Falha ao enviar mensagem.' });
+    }
+});
+
+app.post('/logout', async (req, res) => {
+    try {
+        await logout();
+        res.status(200).json({ success: true, message: 'Cliente desconectado com sucesso.' });
+    } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        res.status(500).json({ success: false, error: 'Falha ao desconectar.' });
     }
 });
 

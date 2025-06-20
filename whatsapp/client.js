@@ -23,6 +23,7 @@ client.on('qr', (qr) => {
     clientState.status = 'SCAN_QR';
     clientState.qrCode = qr;
     clientState.message = 'QR Code recebido. Por favor, escaneie.';
+    console.log(qr);
 });
 
 client.on('authenticated', () => {
@@ -54,11 +55,6 @@ client.on('disconnected', (reason) => {
 
 
 function initialize() {
-    // Evita múltiplas inicializações se já estiver rodando ou tentando
-    if (clientState.status === 'INITIALIZING' || clientState.status === 'READY') {
-        console.log('Inicialização já em progresso ou cliente já pronto.');
-        return;
-    }
     console.log('Iniciando o cliente do WhatsApp...');
     clientState.status = 'INITIALIZING';
     clientState.message = 'O cliente está iniciando...';
@@ -70,8 +66,14 @@ function getState() {
     return clientState;
 }
 
+async function logout() {
+    console.log('Recebido comando de logout...');
+    await client.logout();
+}
+
 module.exports = {
     client,
     initialize,
-    getState // Exporta a nova função
+    getState,
+    logout // Exporta a nova função
 };

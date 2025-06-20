@@ -12,7 +12,8 @@ import os
 # NOVO: Lista centralizada de roteadores para inclusão automática
 from app.routers import (
     userRouter, userProfileRouter, permissionsRouter, tokenRouter,
-    fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter
+    fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter,
+    whatsappRouter
 )
 
 # NOVO: Agrupa todos os roteadores em uma lista para facilitar o registro
@@ -25,7 +26,8 @@ all_routers = [
     fileRouter.router,
     logRouter.router,
     eventsRouter.router,
-    calendarRouter.router
+    calendarRouter.router,
+    whatsappRouter.router
 ]
 
 @asynccontextmanager
