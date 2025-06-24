@@ -25,5 +25,6 @@ class User(Base):
         "Events",
         secondary=user_events_association,
         back_populates="users",
-        cascade="all, delete"
+        cascade="all, delete",
+        lazy="selectin"
     )

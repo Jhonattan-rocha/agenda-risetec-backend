@@ -12,6 +12,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Função para verificar se a senha fornecida corresponde ao hash armazenado.
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Compatibiliza GLPI ($2y$) com passlib/bcrypt ($2b$)
+    if hashed_password.startswith("$2y$"):
+        hashed_password = "$2b$" + hashed_password[4:]
     return pwd_context.verify(plain_password, hashed_password)
 
 # Função para gerar o hash de uma senha.

@@ -4,6 +4,7 @@ from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
 from app.controllers.base import CRUDBase
 from app.models.eventsModel import Events
@@ -33,7 +34,7 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
             query = apply_filters_dynamic(query, filters, model)
 
         result = await db.execute(
-            query.offset(skip).limit(limit if limit > 0 else None)
+            query.offset(skip).options(joinedload(Events.users)).limit(limit if limit > 0 else None)
         )
         return result.scalars().unique().all()
 

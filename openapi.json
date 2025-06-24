@@ -2272,6 +2272,14 @@
                         "type": "string",
                         "title": "Color"
                     },
+                    "user_ids": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "User Ids",
+                        "default": []
+                    },
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
@@ -2341,6 +2349,14 @@
                         "type": "string",
                         "title": "Color"
                     },
+                    "user_ids": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "User Ids",
+                        "default": []
+                    },
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
@@ -2389,6 +2405,14 @@
                     "color": {
                         "type": "string",
                         "title": "Color"
+                    },
+                    "user_ids": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "User Ids",
+                        "default": []
                     },
                     "calendar_id": {
                         "type": "integer",
@@ -2521,7 +2545,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T16:19:50.686755"
+                        "default": "2025-06-24T13:42:28.680533"
                     },
                     "action": {
                         "type": "string",
@@ -2565,7 +2589,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T16:19:50.686755"
+                        "default": "2025-06-24T13:42:28.680533"
                     },
                     "action": {
                         "type": "string",
@@ -2593,7 +2617,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-20T16:19:50.686755"
+                        "default": "2025-06-24T13:42:28.680533"
                     },
                     "action": {
                         "type": "string",

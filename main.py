@@ -67,8 +67,8 @@ app = FastAPI(lifespan=lifespan_startup,
 
 # ATENÇÃO: Em produção, evite usar "*" e especifique as origens permitidas.
 origins = [
-    "https://localhost:3000",
-    "https://localhost:5173",
+    "http://localhost:5173",
+    "http://10.0.0.115:5173/",
     "*",
 ]
 

@@ -34,7 +34,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # NOVO: Lógica de autenticação centralizada aqui
         result = await db.execute(
             select(self.model)
-            .options(joinedload(User.profile).joinedload(UserProfile.permissions))
+            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
             .where(self.model.email == email)
         )
         user = result.scalars().first()

@@ -39,5 +39,6 @@ class Events(Base):
     users = relationship(
         "User",
         secondary=user_events_association,
-        back_populates="events"
+        back_populates="events",
+        lazy="selectin"
     )
