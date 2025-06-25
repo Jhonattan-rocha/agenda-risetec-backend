@@ -18,7 +18,7 @@ models_mapping: dict[str, Any] = {
 }
 
 models_fields_mapping: dict[str, tuple] = {
-    "User": ("name", "email", "lang", "profile_id"),
+    "User": ("name", "email", "lang"),
     "UserProfile": ("name",),
     "Events": ("name", "date", "desc", "user_id"),
     "Permissions": (

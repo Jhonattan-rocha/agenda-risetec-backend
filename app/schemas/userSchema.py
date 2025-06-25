@@ -6,7 +6,6 @@ from .eventsSchema import Event
 class UserBase(BaseModel):
     name: str
     email: str
-    profile_id: Optional[int] = None
 
 class UserCreate(UserBase):
     password: str
@@ -21,7 +20,7 @@ class User(UserBase):
     id: int
     # ALTERAÇÃO: Campo 'salt' removido
     password: Optional[str] = Field(exclude=True)
-    profile: Optional[UserProfile]
+    profiles: List[Optional[UserProfile]]
     events: List[Optional[Event]]
     
     class Config:

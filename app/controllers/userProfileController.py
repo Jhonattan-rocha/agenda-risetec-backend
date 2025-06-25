@@ -17,7 +17,7 @@ class CRUDUserProfile(CRUDBase[UserProfile, UserProfileCreate, UserProfileCreate
     async def get_with_permissions(self, db: AsyncSession, *, id: int) -> Optional[UserProfile]:
         result = await db.execute(
             select(self.model)
-            .options(joinedload(self.model.permissions))
+            .options(joinedload(self.model.permissions), joinedload(self.model.user))
             .filter(self.model.id == id)
         )
         return result.scalars().unique().first()
@@ -26,7 +26,7 @@ class CRUDUserProfile(CRUDBase[UserProfile, UserProfileCreate, UserProfileCreate
     async def get_multi_with_permissions(
         self, db: AsyncSession, *, skip: int, limit: int, filters: str, model: str
     ) -> List[UserProfile]:
-        query = select(self.model).options(joinedload(self.model.permissions))
+        query = select(self.model).options(joinedload(self.model.permissions), joinedload(self.model.user))
         if filters and model:
             query = apply_filters_dynamic(query, filters, model)
         result = await db.execute(

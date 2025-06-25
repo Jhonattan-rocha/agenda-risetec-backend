@@ -2545,7 +2545,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-24T13:42:28.680533"
+                        "default": "2025-06-25T16:25:03.826868"
                     },
                     "action": {
                         "type": "string",
@@ -2589,7 +2589,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-24T13:42:28.680533"
+                        "default": "2025-06-25T16:25:03.826868"
                     },
                     "action": {
                         "type": "string",
@@ -2617,7 +2617,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-24T13:42:28.680533"
+                        "default": "2025-06-25T16:25:03.826868"
                     },
                     "action": {
                         "type": "string",
@@ -2795,30 +2795,23 @@
                         "type": "string",
                         "title": "Email"
                     },
-                    "profile_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Profile Id"
-                    },
                     "id": {
                         "type": "integer",
                         "title": "Id"
                     },
-                    "profile": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/UserProfile"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
+                    "profiles": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/UserProfile"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Profiles"
                     },
                     "events": {
                         "items": {
@@ -2840,7 +2833,7 @@
                     "name",
                     "email",
                     "id",
-                    "profile",
+                    "profiles",
                     "events"
                 ],
                 "title": "User"
@@ -2854,17 +2847,6 @@
                     "email": {
                         "type": "string",
                         "title": "Email"
-                    },
-                    "profile_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Profile Id"
                     },
                     "password": {
                         "type": "string",
@@ -2966,17 +2948,6 @@
                             }
                         ],
                         "title": "Email"
-                    },
-                    "profile_id": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Profile Id"
                     },
                     "password": {
                         "anyOf": [

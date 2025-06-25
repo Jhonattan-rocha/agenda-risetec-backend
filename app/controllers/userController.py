@@ -34,7 +34,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # NOVO: Lógica de autenticação centralizada aqui
         result = await db.execute(
             select(self.model)
-            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
             .where(self.model.email == email)
         )
         user = result.scalars().first()
@@ -53,7 +53,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             
         result = await db.execute(
             query
-            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
             .offset(skip)
             .limit(limit if limit > 0 else None)
         )
@@ -62,7 +62,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def get_user_with_details(self, db: AsyncSession, user_id: int):
         result = await db.execute(
             select(self.model)
-            .options(joinedload(User.profile).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
             .where(self.model.id == user_id)
         )
         user = result.scalars().unique().first()
