@@ -21,7 +21,7 @@ class Events(Base):
     description = Column(String(255), default="", nullable=True)
     
     # CORREÇÃO: A coluna de data deve ser do tipo DateTime, não String.
-    date = Column(DateTime, default=datetime.now)
+    date = Column(DateTime(timezone=True), default=datetime.now)
     
     isAllDay = Column(Boolean, default=False)
     startTime = Column(String, nullable=False)
