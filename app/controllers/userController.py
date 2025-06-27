@@ -4,47 +4,87 @@ from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.controllers.base import CRUDBase
 from app.models.userModel import User
 from app.models.userProfileModel import UserProfile
-from app.schemas.userSchema import UserCreate, UserBase, UserUpdate
+from app.schemas.userSchema import UserCreate, UserUpdate
 from app.core.security import get_password_hash, verify_password
 from app.utils import apply_filters_dynamic
 
-# NOVO: Herda de CRUDBase
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    async def create(self, db: AsyncSession, *, obj_in: UserBase) -> User:
-        # ALTERAÇÃO: Usa o novo sistema de hashing
+    
+    # ALTERADO: O método create agora associa os perfis.
+    async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         hashed_password = get_password_hash(obj_in.password)
         
         create_data = obj_in.model_dump()
-        create_data.pop("password", None) # Remove a senha em texto plano
+        
+        # Remove dados que não são colunas diretas do modelo User
+        profile_ids = create_data.pop("profile_ids", [])
+        create_data.pop("password", None)
         
         db_obj = self.model(**create_data, password=hashed_password)
+        
+        # Associa os perfis ao novo usuário
+        if profile_ids:
+            profiles = await db.execute(
+                select(UserProfile).where(UserProfile.id.in_(profile_ids))
+            )
+            db_obj.profiles = profiles.scalars().all()
+
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
 
+    # ALTERADO: O método update agora pode atualizar a associação de perfis.
+    async def update(
+        self,
+        db: AsyncSession,
+        *,
+        db_obj: User,
+        obj_in: UserUpdate
+    ) -> User:
+        update_data = obj_in.model_dump(exclude_unset=True)
+
+        # Se uma nova senha for fornecida, faz o hash
+        if "password" in update_data:
+            hashed_password = get_password_hash(update_data["password"])
+            del update_data["password"]
+            db_obj.password = hashed_password
+        
+        # Se novos profile_ids forem fornecidos, atualiza a associação
+        if "profile_ids" in update_data:
+            profile_ids = update_data.pop("profile_ids")
+            profiles = await db.execute(
+                select(UserProfile).where(UserProfile.id.in_(profile_ids))
+            )
+            db_obj.profiles = profiles.scalars().all()
+
+        # Atualiza os outros campos
+        return await super().update(db=db, db_obj=db_obj, obj_in=update_data)
+
+
     async def authenticate(
         self, db: AsyncSession, *, email: str, password: str
     ) -> Optional[User]:
-        # NOVO: Lógica de autenticação centralizada aqui
         result = await db.execute(
             select(self.model)
-            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(
+                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.events)
+            )
             .where(self.model.email == email)
         )
-        user = result.scalars().first()
+        user = result.scalars().unique().first()
         if not user:
             return None
         if not verify_password(password, user.password):
             return None
         return user
     
-    # Mantém métodos com lógica customizada (filtros, joins)
     async def get_users_with_details(self, db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[str] = None, model: str = ""):
         query = select(self.model)
 
@@ -53,7 +93,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             
         result = await db.execute(
             query
-            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(
+                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.events)
+            )
             .offset(skip)
             .limit(limit if limit > 0 else None)
         )
@@ -62,7 +105,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def get_user_with_details(self, db: AsyncSession, user_id: int):
         result = await db.execute(
             select(self.model)
-            .options(joinedload(User.profiles).joinedload(UserProfile.permissions), joinedload(User.events))
+            .options(
+                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.events)
+            )
             .where(self.model.id == user_id)
         )
         user = result.scalars().unique().first()
@@ -73,5 +119,4 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
         return user
 
-# Instância do controller para ser usada nas rotas
 user_controller = CRUDUser(User)

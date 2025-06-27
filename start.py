@@ -14,7 +14,7 @@ WHATSAPP_COMMAND = ['node', 'index.js']
 WHATSAPP_LOG = r'whatsapp_service.log'
 
 # Serviço da API Principal (FastAPI)
-API_SERVICE_DIR = r'C:\Users\Jhonattan-PC\OneDrive\Documentos\projetos\agenda-risetec-backend'
+API_SERVICE_DIR = r'C:\Users\Jhonattan.rocha\Documents\projetos\agenda-risetec-backend'
 API_COMMAND = ['hypercorn', 'main:app', '--bind', '0.0.0.0:9000']
 API_LOG = r'api_service.log'
 

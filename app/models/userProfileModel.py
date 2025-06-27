@@ -10,5 +10,5 @@ class UserProfile(Base):
     name = Column(String(255), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    permissions = relationship("Permissions", back_populates="profile", lazy="selectin", cascade="all, delete-orphan")
-    user = relationship("User", back_populates="profiles", lazy="selectin")
+    permissions = relationship("Permissions", back_populates="profile", lazy="joined", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="profiles", lazy="joined")

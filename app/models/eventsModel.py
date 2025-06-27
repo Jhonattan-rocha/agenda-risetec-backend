@@ -40,5 +40,5 @@ class Events(Base):
         "User",
         secondary=user_events_association,
         back_populates="events",
-        lazy="selectin"
+        lazy="joined"
     )

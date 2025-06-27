@@ -2176,7 +2176,8 @@
                             ]
                         },
                         "type": "array",
-                        "title": "Events"
+                        "title": "Events",
+                        "default": []
                     }
                 },
                 "type": "object",
@@ -2184,8 +2185,7 @@
                     "name",
                     "color",
                     "visible",
-                    "id",
-                    "events"
+                    "id"
                 ],
                 "title": "Calendar"
             },
@@ -2225,18 +2225,13 @@
                     "visible": {
                         "type": "boolean",
                         "title": "Visible"
-                    },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
                     }
                 },
                 "type": "object",
                 "required": [
                     "name",
                     "color",
-                    "visible",
-                    "id"
+                    "visible"
                 ],
                 "title": "CalendarCreate"
             },
@@ -2247,7 +2242,14 @@
                         "title": "Title"
                     },
                     "description": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Description",
                         "default": ""
                     },
@@ -2261,16 +2263,40 @@
                         "title": "Isallday"
                     },
                     "startTime": {
-                        "type": "string",
-                        "title": "Starttime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Starttime",
+                        "default": ""
                     },
                     "endTime": {
-                        "type": "string",
-                        "title": "Endtime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Endtime",
+                        "default": ""
                     },
                     "color": {
-                        "type": "string",
-                        "title": "Color"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color",
+                        "default": ""
                     },
                     "user_ids": {
                         "items": {
@@ -2292,7 +2318,7 @@
                         "items": {
                             "anyOf": [
                                 {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserInEvent"
                                 },
                                 {
                                     "type": "null"
@@ -2309,9 +2335,6 @@
                     "title",
                     "date",
                     "isAllDay",
-                    "startTime",
-                    "endTime",
-                    "color",
                     "calendar_id",
                     "id"
                 ],
@@ -2324,7 +2347,14 @@
                         "title": "Title"
                     },
                     "description": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Description",
                         "default": ""
                     },
@@ -2338,16 +2368,40 @@
                         "title": "Isallday"
                     },
                     "startTime": {
-                        "type": "string",
-                        "title": "Starttime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Starttime",
+                        "default": ""
                     },
                     "endTime": {
-                        "type": "string",
-                        "title": "Endtime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Endtime",
+                        "default": ""
                     },
                     "color": {
-                        "type": "string",
-                        "title": "Color"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color",
+                        "default": ""
                     },
                     "user_ids": {
                         "items": {
@@ -2367,9 +2421,6 @@
                     "title",
                     "date",
                     "isAllDay",
-                    "startTime",
-                    "endTime",
-                    "color",
                     "calendar_id"
                 ],
                 "title": "EventBase"
@@ -2381,7 +2432,14 @@
                         "title": "Title"
                     },
                     "description": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Description",
                         "default": ""
                     },
@@ -2395,16 +2453,40 @@
                         "title": "Isallday"
                     },
                     "startTime": {
-                        "type": "string",
-                        "title": "Starttime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Starttime",
+                        "default": ""
                     },
                     "endTime": {
-                        "type": "string",
-                        "title": "Endtime"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Endtime",
+                        "default": ""
                     },
                     "color": {
-                        "type": "string",
-                        "title": "Color"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color",
+                        "default": ""
                     },
                     "user_ids": {
                         "items": {
@@ -2428,13 +2510,39 @@
                     "title",
                     "date",
                     "isAllDay",
-                    "startTime",
-                    "endTime",
-                    "color",
                     "calendar_id",
                     "id"
                 ],
                 "title": "EventCreate"
+            },
+            "EventInUser": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
+                    },
+                    "calendar_id": {
+                        "type": "integer",
+                        "title": "Calendar Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "date",
+                    "calendar_id"
+                ],
+                "title": "EventInUser"
             },
             "FileCreate": {
                 "properties": {
@@ -2545,7 +2653,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-26T20:32:12.501985"
+                        "default": "2025-06-27T14:43:27.508396"
                     },
                     "action": {
                         "type": "string",
@@ -2589,7 +2697,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-26T20:32:12.501985"
+                        "default": "2025-06-27T14:43:27.508396"
                     },
                     "action": {
                         "type": "string",
@@ -2617,7 +2725,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-26T20:32:12.501985"
+                        "default": "2025-06-27T14:43:27.508396"
                     },
                     "action": {
                         "type": "string",
@@ -2761,6 +2869,24 @@
                 ],
                 "title": "PermissionsCreate"
             },
+            "ProfileInUser": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "title": "ProfileInUser"
+            },
             "Token": {
                 "properties": {
                     "access_token": {
@@ -2787,6 +2913,10 @@
             },
             "User": {
                 "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
                     "name": {
                         "type": "string",
                         "title": "Name"
@@ -2795,15 +2925,11 @@
                         "type": "string",
                         "title": "Email"
                     },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    },
                     "profiles": {
                         "items": {
                             "anyOf": [
                                 {
-                                    "$ref": "#/components/schemas/UserProfile"
+                                    "$ref": "#/components/schemas/ProfileInUser"
                                 },
                                 {
                                     "type": "null"
@@ -2817,7 +2943,7 @@
                         "items": {
                             "anyOf": [
                                 {
-                                    "$ref": "#/components/schemas/Event"
+                                    "$ref": "#/components/schemas/EventInUser"
                                 },
                                 {
                                     "type": "null"
@@ -2830,9 +2956,9 @@
                 },
                 "type": "object",
                 "required": [
+                    "id",
                     "name",
                     "email",
-                    "id",
                     "profiles",
                     "events"
                 ],
@@ -2840,6 +2966,17 @@
             },
             "UserCreate": {
                 "properties": {
+                    "id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id"
+                    },
                     "name": {
                         "type": "string",
                         "title": "Name"
@@ -2851,6 +2988,14 @@
                     "password": {
                         "type": "string",
                         "title": "Password"
+                    },
+                    "profile_ids": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Profile Ids",
+                        "default": []
                     }
                 },
                 "type": "object",
@@ -2860,6 +3005,29 @@
                     "password"
                 ],
                 "title": "UserCreate"
+            },
+            "UserInEvent": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "title": "Email"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "email"
+                ],
+                "title": "UserInEvent"
             },
             "UserProfile": {
                 "properties": {
@@ -2914,19 +3082,36 @@
                         "title": "Name"
                     },
                     "id": {
-                        "type": "integer",
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Id"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "name",
-                    "id"
+                    "name"
                 ],
                 "title": "UserProfileCreate"
             },
             "UserUpdate": {
                 "properties": {
+                    "id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id"
+                    },
                     "name": {
                         "anyOf": [
                             {
@@ -2959,6 +3144,20 @@
                             }
                         ],
                         "title": "Password"
+                    },
+                    "profile_ids": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Profile Ids"
                     }
                 },
                 "type": "object",
