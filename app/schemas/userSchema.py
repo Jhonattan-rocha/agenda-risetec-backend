@@ -15,16 +15,15 @@ class UserBase(BaseModel):
     id: Optional[int] = None
     name: str
     email: str
+    profile_id: int | None = None
 
 class UserCreate(UserBase):
     password: str
-    profile_id: int | None = None
 
 class UserUpdate(UserBase):
     name: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
-    profile_id: int | None = None
 
 # Schema principal de resposta do Usuário
 class User(UserBase):

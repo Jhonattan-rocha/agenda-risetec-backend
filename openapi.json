@@ -2653,7 +2653,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-28T16:33:34.849087"
+                        "default": "2025-06-28T17:05:38.749144"
                     },
                     "action": {
                         "type": "string",
@@ -2697,7 +2697,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-28T16:33:34.849087"
+                        "default": "2025-06-28T17:05:38.749144"
                     },
                     "action": {
                         "type": "string",
@@ -2725,7 +2725,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-28T16:33:34.849087"
+                        "default": "2025-06-28T17:05:38.749144"
                     },
                     "action": {
                         "type": "string",
@@ -2925,6 +2925,17 @@
                         "type": "string",
                         "title": "Email"
                     },
+                    "profile_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Profile Id"
+                    },
                     "profile": {
                         "anyOf": [
                             {
@@ -2981,10 +2992,6 @@
                         "type": "string",
                         "title": "Email"
                     },
-                    "password": {
-                        "type": "string",
-                        "title": "Password"
-                    },
                     "profile_id": {
                         "anyOf": [
                             {
@@ -2995,6 +3002,10 @@
                             }
                         ],
                         "title": "Profile Id"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
                     }
                 },
                 "type": "object",
@@ -3133,17 +3144,6 @@
                         ],
                         "title": "Email"
                     },
-                    "password": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Password"
-                    },
                     "profile_id": {
                         "anyOf": [
                             {
@@ -3154,6 +3154,17 @@
                             }
                         ],
                         "title": "Profile Id"
+                    },
+                    "password": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Password"
                     }
                 },
                 "type": "object",
