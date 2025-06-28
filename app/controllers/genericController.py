@@ -1,4 +1,6 @@
-from typing import List, Optional
+# app/controllers/genericController.py
+
+from typing import List, Optional, Set
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.schemas.genericSchema import GenericCreate
@@ -62,16 +64,30 @@ class GenericController:
             return db_obj
         return None
     
-    def serialize_item(self, item):
+    def serialize_item(self, item, visited: Set = None):
+        if visited is None:
+            visited = set()
+
+        # Se o objeto já foi visitado nesta "caminhada", retorna None para quebrar o ciclo.
+        if id(item) in visited:
+            return None
+
+        visited.add(id(item))
+
         result = {}
         for key in item.__dict__.keys():
             if not key.startswith('_'):
                 value = getattr(item, key)
                 
                 if isinstance(value, Base):  # Se o valor for outro objeto SQLAlchemy
-                    result[key] = self.serialize_item(value)
-                elif isinstance(value, InstrumentedList):  # Se o valor for uma lista de objetos SQLAlchemy
-                    result[key] = [self.serialize_item(i) for i in value]
+                    serialized_value = self.serialize_item(value, visited)
+                    # Apenas inclui o valor se não for uma referência circular
+                    if serialized_value is not None:
+                        result[key] = serialized_value
+                elif isinstance(value, InstrumentedList):  # Se for uma lista de objetos
+                    result[key] = [self.serialize_item(i, visited) for i in value if i is not None]
                 else:
                     result[key] = value
+        
+        visited.remove(id(item))
         return result

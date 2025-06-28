@@ -15,8 +15,8 @@ class User(Base):
     name = Column(String(255), default="")
     email = Column(String(255), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
-
-    profiles = relationship("UserProfile", back_populates="user", lazy="joined")
+    profile_id = Column(Integer, ForeignKey("user_profile.id"), nullable=True)
+    profile = relationship("UserProfile", lazy="joined")
     
     # ALTERADO: O relacionamento agora usa o argumento `secondary` para
     # apontar para a nossa tabela de associação.

@@ -18,20 +18,20 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    profile_ids: List[int] = []
+    profile_id: int | None = None
 
 class UserUpdate(UserBase):
     name: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
-    profile_ids: Optional[List[int]] = None
+    profile_id: int | None = None
 
 # Schema principal de resposta do Usuário
 class User(UserBase):
     id: int
     password: Optional[str] = Field(exclude=True)
     # Usa referências futuras como strings para evitar importação direta
-    profiles: List[Optional["ProfileInUser"]]
+    profile: Optional["ProfileInUser"]
     events: List[Optional["EventInUser"]]
     
     class Config:

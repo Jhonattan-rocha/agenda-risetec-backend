@@ -27,7 +27,7 @@ async def get_files(db: AsyncSession, skip: int = 0, limit: int = 10, filters: O
     return result.scalars().unique().first()
 
 async def create_file(db: AsyncSession, file: FileBase):
-    db_file = File(**file.model_dump(exclude_none=True))
+    db_file = File(**file.model_dump(exclude_unset=True, exclude_none=True))
     db.add(db_file)
     await db.commit()
     await db.refresh(db_file)

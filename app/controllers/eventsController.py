@@ -19,7 +19,7 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
     # NOVO: Sobrescreva o método create para lidar com o relacionamento N-N
     async def create(self, db: AsyncSession, *, obj_in: EventBase) -> Events:
         # 1. Extraia os dados do schema Pydantic
-        obj_in_data = obj_in.model_dump()
+        obj_in_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
         
         # 2. Remova 'user_ids' dos dados, pois não é uma coluna em Events
         user_ids = obj_in_data.pop('user_ids', [])
@@ -32,7 +32,7 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
             result = await db.execute(
                 select(User).where(User.id.in_(user_ids))
             )
-            users = result.scalars().all()
+            users = result.scalars().unique().all()
             if len(users) != len(user_ids):
                 raise HTTPException(status_code=404, detail="Um ou mais usuários não foram encontrados.")
             # 5. Associe os usuários ao evento

@@ -2653,7 +2653,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-27T14:43:27.508396"
+                        "default": "2025-06-28T16:33:34.849087"
                     },
                     "action": {
                         "type": "string",
@@ -2697,7 +2697,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-27T14:43:27.508396"
+                        "default": "2025-06-28T16:33:34.849087"
                     },
                     "action": {
                         "type": "string",
@@ -2725,7 +2725,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-27T14:43:27.508396"
+                        "default": "2025-06-28T16:33:34.849087"
                     },
                     "action": {
                         "type": "string",
@@ -2925,19 +2925,15 @@
                         "type": "string",
                         "title": "Email"
                     },
-                    "profiles": {
-                        "items": {
-                            "anyOf": [
-                                {
-                                    "$ref": "#/components/schemas/ProfileInUser"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ]
-                        },
-                        "type": "array",
-                        "title": "Profiles"
+                    "profile": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ProfileInUser"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "events": {
                         "items": {
@@ -2959,7 +2955,7 @@
                     "id",
                     "name",
                     "email",
-                    "profiles",
+                    "profile",
                     "events"
                 ],
                 "title": "User"
@@ -2989,13 +2985,16 @@
                         "type": "string",
                         "title": "Password"
                     },
-                    "profile_ids": {
-                        "items": {
-                            "type": "integer"
-                        },
-                        "type": "array",
-                        "title": "Profile Ids",
-                        "default": []
+                    "profile_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Profile Id"
                     }
                 },
                 "type": "object",
@@ -3145,19 +3144,16 @@
                         ],
                         "title": "Password"
                     },
-                    "profile_ids": {
+                    "profile_id": {
                         "anyOf": [
                             {
-                                "items": {
-                                    "type": "integer"
-                                },
-                                "type": "array"
+                                "type": "integer"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Profile Ids"
+                        "title": "Profile Id"
                     }
                 },
                 "type": "object",

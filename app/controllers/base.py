@@ -36,7 +36,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().all()
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in.model_dump(exclude_none=True))
+        obj_in_data = jsonable_encoder(obj_in.model_dump(exclude_unset=True, exclude_none=True))
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         await db.commit()
@@ -54,7 +54,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.model_dump(exclude_unset=True)
+            update_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
             
         for field in obj_data:
             if field in update_data:

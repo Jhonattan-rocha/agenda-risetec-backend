@@ -43,7 +43,7 @@ async def login_for_access_token(
             "id": user.id,
             "email": user.email,
             "name": user.name,
-            "profile": generic_controller.serialize_item(user.profiles) if user.profiles else None,
+            "profile": generic_controller.serialize_item(user.profile) if user.profile else None,
         }
     }
     

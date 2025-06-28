@@ -10,7 +10,7 @@ from app.schemas.logSchema import LoggerBase, LoggerCreate
 from app.utils import apply_filters_dynamic
 
 async def create_log(db: AsyncSession, log: LoggerBase):
-    db_log = Logger(**log.model_dump(exclude_none=True))
+    db_log = Logger(**log.model_dump(exclude_unset=True, exclude_none=True))
     db.add(db_log)
     await db.commit()
     await db.refresh(db_log)

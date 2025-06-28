@@ -19,20 +19,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         hashed_password = get_password_hash(obj_in.password)
         
-        create_data = obj_in.model_dump()
+        create_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
         
-        # Remove dados que não são colunas diretas do modelo User
-        profile_ids = create_data.pop("profile_ids", [])
         create_data.pop("password", None)
         
         db_obj = self.model(**create_data, password=hashed_password)
-        
-        # Associa os perfis ao novo usuário
-        if profile_ids:
-            profiles = await db.execute(
-                select(UserProfile).where(UserProfile.id.in_(profile_ids))
-            )
-            db_obj.profiles = profiles.scalars().all()
 
         db.add(db_obj)
         await db.commit()
@@ -47,21 +38,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj: User,
         obj_in: UserUpdate
     ) -> User:
-        update_data = obj_in.model_dump(exclude_unset=True)
+        update_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
 
         # Se uma nova senha for fornecida, faz o hash
         if "password" in update_data:
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             db_obj.password = hashed_password
-        
-        # Se novos profile_ids forem fornecidos, atualiza a associação
-        if "profile_ids" in update_data:
-            profile_ids = update_data.pop("profile_ids")
-            profiles = await db.execute(
-                select(UserProfile).where(UserProfile.id.in_(profile_ids))
-            )
-            db_obj.profiles = profiles.scalars().all()
 
         # Atualiza os outros campos
         return await super().update(db=db, db_obj=db_obj, obj_in=update_data)
@@ -73,7 +56,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(
             select(self.model)
             .options(
-                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.profile).selectinload(UserProfile.permissions), 
                 selectinload(User.events)
             )
             .where(self.model.email == email)
@@ -94,7 +77,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(
             query
             .options(
-                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.profile).selectinload(UserProfile.permissions), 
                 selectinload(User.events)
             )
             .offset(skip)
@@ -106,7 +89,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(
             select(self.model)
             .options(
-                selectinload(User.profiles).selectinload(UserProfile.permissions), 
+                selectinload(User.profile).selectinload(UserProfile.permissions), 
                 selectinload(User.events)
             )
             .where(self.model.id == user_id)
