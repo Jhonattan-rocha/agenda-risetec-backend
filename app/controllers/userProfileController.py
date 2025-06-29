@@ -3,7 +3,7 @@
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from app.controllers.base import CRUDBase
 from app.models.userProfileModel import UserProfile
@@ -17,7 +17,7 @@ class CRUDUserProfile(CRUDBase[UserProfile, UserProfileCreate, UserProfileCreate
     async def get_with_permissions(self, db: AsyncSession, *, id: int) -> Optional[UserProfile]:
         result = await db.execute(
             select(self.model)
-            .options(joinedload(self.model.permissions))
+            .options(selectinload(self.model.permissions))
             .filter(self.model.id == id)
         )
         return result.scalars().unique().first()
@@ -26,7 +26,7 @@ class CRUDUserProfile(CRUDBase[UserProfile, UserProfileCreate, UserProfileCreate
     async def get_multi_with_permissions(
         self, db: AsyncSession, *, skip: int, limit: int, filters: str, model: str
     ) -> List[UserProfile]:
-        query = select(self.model).options(joinedload(self.model.permissions))
+        query = select(self.model).options(selectinload(self.model.permissions))
         if filters and model:
             query = apply_filters_dynamic(query, filters, model)
         result = await db.execute(

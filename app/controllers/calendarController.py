@@ -2,10 +2,11 @@ from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from app.controllers.base import CRUDBase
 from app.models.calendarModel import Calendar
+from app.models.eventsModel import Events
 from app.schemas.calendarSchema import CalendarCreate, CalendarBase
 from app.utils import apply_filters_dynamic
 
@@ -16,7 +17,7 @@ class CRUDCalendar(CRUDBase[Calendar, CalendarCreate, CalendarCreate]):
     async def get_with_events(self, db: AsyncSession, *, id: int) -> Optional[Calendar]:
         result = await db.execute(
             select(self.model)
-            .options(joinedload(self.model.events))
+            .options(selectinload(self.model.events))
             .filter(self.model.id == id)
         )
         calendar = result.scalars().unique().first()
@@ -31,7 +32,7 @@ class CRUDCalendar(CRUDBase[Calendar, CalendarCreate, CalendarCreate]):
     async def get_multi_with_events(
         self, db: AsyncSession, *, skip: int, limit: int, filters: str, model: str
     ) -> List[Calendar]:
-        query = select(self.model).options(joinedload(self.model.events))
+        query = select(self.model).options(selectinload(self.model.events))
 
         if filters and model:
             query = apply_filters_dynamic(query, filters, model)

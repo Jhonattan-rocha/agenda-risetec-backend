@@ -14,4 +14,4 @@ class Permissions(Base):
     can_create = Column(Boolean, default=False)
     profile_id = Column(Integer, ForeignKey('user_profile.id'), nullable=False)
 
-    profile = relationship("UserProfile", back_populates="permissions", lazy="joined")
+    profile = relationship("UserProfile", back_populates="permissions", lazy="selectin")

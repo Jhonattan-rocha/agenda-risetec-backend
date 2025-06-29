@@ -12,4 +12,4 @@ class Logger(Base):
     entity = Column(String, nullable=False)
     data = Column(String, nullable=False)
     
-    user = relationship("User", foreign_keys="Logger.user_id", lazy="joined")
+    user = relationship("User", foreign_keys="Logger.user_id", lazy="selectin")

@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 from app.models.logModel import Logger
 from app.models.userModel import User
 from app.models.userProfileModel import UserProfile
@@ -25,7 +25,7 @@ async def get_logs(db: AsyncSession, skip: int = 0, limit: int = 10, filters: Op
         query = apply_filters_dynamic(query, filters, model)
     result = await db.execute(
         query
-        .options(joinedload(Logger.user).joinedload(User.profile).joinedload(UserProfile.permissions))
+        .options(selectinload(Logger.user).selectinload(User.profile).selectinload(UserProfile.permissions))
         .offset(skip)
         .limit(limit if limit > 0 else None)
     )

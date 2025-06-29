@@ -16,14 +16,13 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
     profile_id = Column(Integer, ForeignKey("user_profile.id"), nullable=True)
-    profile = relationship("UserProfile", lazy="joined")
+    profile = relationship("UserProfile", lazy="selectin")
     
     # ALTERADO: O relacionamento agora usa o argumento `secondary` para
     # apontar para a nossa tabela de associação.
     events = relationship(
         "Events",
         secondary=user_events_association,
-        back_populates="users",
         cascade="all, delete",
-        lazy="joined"
+        lazy="selectin"
     )

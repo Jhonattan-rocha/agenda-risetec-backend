@@ -4,7 +4,7 @@ from typing import Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload, selectinload
 
 from app.controllers.base import CRUDBase
 from app.models.userModel import User

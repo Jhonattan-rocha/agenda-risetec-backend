@@ -3,13 +3,14 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table
 from app.database.database import Base
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 # NOVO: Tabela de associação para a relação N-N entre usuários e eventos.
 # Esta tabela não é uma classe, é uma definição direta de tabela do SQLAlchemy.
 user_events_association = Table(
     'user_events', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
-    Column('event_id', Integer, ForeignKey('events.id'), primary_key=True)
+    Column('user_id', Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    Column('event_id', Integer, ForeignKey('events.id', ondelete="CASCADE"), primary_key=True)
 )
 
 
@@ -30,15 +31,8 @@ class Events(Base):
     
     calendar_id = Column(Integer, ForeignKey("calendars.id"), nullable=False)
 
-    # REMOVIDO: A chave estrangeira direta para user_id não é mais necessária.
-    # user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-
-    # NOVO: Relacionamento de volta para User, usando a tabela de associação.
-    # Isso permite acessar `meu_evento.users` para ver todos os participantes.
-    from sqlalchemy.orm import relationship
     users = relationship(
         "User",
         secondary=user_events_association,
-        back_populates="events",
-        lazy="joined"
+        lazy="selectin"
     )
