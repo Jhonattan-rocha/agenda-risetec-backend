@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean
+# agenda-risetec-backend/app/models/calendarModel.py
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from app.database.database import Base
 from sqlalchemy.orm import relationship
 
@@ -10,4 +12,14 @@ class Calendar(Base):
     color = Column(String(255), default="")
     visible = Column(Boolean, default=True)
 
+    # --- NOVOS CAMPOS ---
+    description = Column(String(500), nullable=True)
+    is_private = Column(Boolean, default=False)
+    owner_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    # --- FIM NOVOS CAMPOS ---
+
+    # Relacionamento com eventos
     events = relationship("Events", lazy="selectin", cascade="all, delete-orphan")
+    
+    # NOVO: Relacionamento com o proprietário do calendário
+    owner = relationship("User", foreign_keys=[owner_id])

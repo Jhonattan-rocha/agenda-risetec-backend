@@ -2,22 +2,24 @@
 
 from pydantic import BaseModel
 from typing import Optional, List
-# Importa o schema de Evento corrigido
 from .eventsSchema import Event
 
 class CalendarBase(BaseModel):
     name: str
     color: str
     visible: bool
+    # NOVOS CAMPOS
+    description: Optional[str] = None
+    is_private: Optional[bool] = False
+    owner_id: Optional[int] = None
+
 
 class CalendarCreate(CalendarBase):
-    # ID não é necessário na criação, o banco de dados o gera.
-    # Se precisar passar no PUT, crie um schema CalendarUpdate
     pass
 
 class Calendar(CalendarBase):
     id: int
-    events: List[Optional[Event]] = [] # Este agora é seguro para usar
+    events: List[Optional[Event]] = []
 
     class Config:
         from_attributes = True

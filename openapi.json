@@ -2160,6 +2160,40 @@
                         "type": "boolean",
                         "title": "Visible"
                     },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "is_private": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Private",
+                        "default": false
+                    },
+                    "owner_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Owner Id"
+                    },
                     "id": {
                         "type": "integer",
                         "title": "Id"
@@ -2202,6 +2236,40 @@
                     "visible": {
                         "type": "boolean",
                         "title": "Visible"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "is_private": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Private",
+                        "default": false
+                    },
+                    "owner_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Owner Id"
                     }
                 },
                 "type": "object",
@@ -2225,6 +2293,40 @@
                     "visible": {
                         "type": "boolean",
                         "title": "Visible"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "is_private": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Private",
+                        "default": false
+                    },
+                    "owner_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Owner Id"
                     }
                 },
                 "type": "object",
@@ -2309,6 +2411,51 @@
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "default": "confirmed"
+                    },
+                    "recurring_rule": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Recurring Rule"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
                     },
                     "id": {
                         "type": "integer",
@@ -2414,6 +2561,51 @@
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "default": "confirmed"
+                    },
+                    "recurring_rule": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Recurring Rule"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
                     }
                 },
                 "type": "object",
@@ -2499,6 +2691,51 @@
                     "calendar_id": {
                         "type": "integer",
                         "title": "Calendar Id"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status",
+                        "default": "confirmed"
+                    },
+                    "recurring_rule": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Recurring Rule"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
                     },
                     "id": {
                         "type": "integer",
@@ -2653,7 +2890,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-30T13:46:06.004888"
+                        "default": "2025-07-07T21:24:39.649513"
                     },
                     "action": {
                         "type": "string",
@@ -2697,7 +2934,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-30T13:46:06.004888"
+                        "default": "2025-07-07T21:24:39.649513"
                     },
                     "action": {
                         "type": "string",
@@ -2725,7 +2962,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-06-30T13:46:06.004888"
+                        "default": "2025-07-07T21:24:39.649513"
                     },
                     "action": {
                         "type": "string",
@@ -2936,6 +3173,17 @@
                         ],
                         "title": "Profile Id"
                     },
+                    "phone_number": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone Number"
+                    },
                     "profile": {
                         "anyOf": [
                             {
@@ -2959,6 +3207,18 @@
                         },
                         "type": "array",
                         "title": "Events"
+                    },
+                    "last_login": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Login"
                     }
                 },
                 "type": "object",
@@ -3002,6 +3262,17 @@
                             }
                         ],
                         "title": "Profile Id"
+                    },
+                    "phone_number": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone Number"
                     },
                     "password": {
                         "type": "string",
@@ -3154,6 +3425,17 @@
                             }
                         ],
                         "title": "Profile Id"
+                    },
+                    "phone_number": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone Number"
                     },
                     "password": {
                         "anyOf": [
