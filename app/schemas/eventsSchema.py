@@ -39,6 +39,21 @@ class EventBase(BaseModel):
 class EventCreate(EventBase):
     id: int
 
+class EventUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    date: Optional[datetime] = None
+    isAllDay: Optional[bool] = None
+    startTime: Optional[str] = None
+    endTime: Optional[str] = None
+    color: Optional[str] = None
+    user_ids: Optional[List[int]] = None # Permite atualizar a lista de usuários
+    calendar_id: Optional[int] = None
+    location: Optional[str] = None
+    status: Optional[str] = None
+    recurring_rule: Optional[str] = None
+    created_by: Optional[int] = None
+
 class Event(EventBase):
     id: int
     users: List[Optional["UserInEvent"]] = []

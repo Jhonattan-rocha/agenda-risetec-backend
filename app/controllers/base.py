@@ -72,6 +72,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.refresh(db_obj)
         return db_obj
 
+    # --- MÉTODO CORRIGIDO ---
     async def update(
         self,
         db: AsyncSession,
@@ -79,20 +80,22 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
-        obj_data = jsonable_encoder(db_obj)
+        # Determina a fonte dos dados de atualização
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
-            
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data[field])
+            # Se for um schema Pydantic, converte para dict, excluindo valores não definidos
+            update_data = obj_in.model_dump(exclude_unset=True)
+
+        # Itera diretamente sobre os dados recebidos para atualizar o objeto
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
                 
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
+    # --- FIM DA CORREÇÃO ---
 
     async def remove(self, db: AsyncSession, *, id: int) -> Optional[ModelType]:
         result = await db.execute(select(self.model).filter(self.model.id == id))

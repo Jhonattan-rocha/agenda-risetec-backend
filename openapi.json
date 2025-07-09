@@ -1681,7 +1681,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EventCreate"
+                                "$ref": "#/components/schemas/EventUpdate"
                             }
                         }
                     }
@@ -2622,141 +2622,6 @@
                 ],
                 "title": "EventBase"
             },
-            "EventCreate": {
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "title": "Title"
-                    },
-                    "description": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Description",
-                        "default": ""
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Date"
-                    },
-                    "isAllDay": {
-                        "type": "boolean",
-                        "title": "Isallday"
-                    },
-                    "startTime": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Starttime",
-                        "default": ""
-                    },
-                    "endTime": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Endtime",
-                        "default": ""
-                    },
-                    "color": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Color",
-                        "default": ""
-                    },
-                    "user_ids": {
-                        "items": {
-                            "type": "integer"
-                        },
-                        "type": "array",
-                        "title": "User Ids",
-                        "default": []
-                    },
-                    "calendar_id": {
-                        "type": "integer",
-                        "title": "Calendar Id"
-                    },
-                    "location": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Location"
-                    },
-                    "status": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Status",
-                        "default": "confirmed"
-                    },
-                    "recurring_rule": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Recurring Rule"
-                    },
-                    "created_by": {
-                        "anyOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Created By"
-                    },
-                    "id": {
-                        "type": "integer",
-                        "title": "Id"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "title",
-                    "date",
-                    "isAllDay",
-                    "calendar_id",
-                    "id"
-                ],
-                "title": "EventCreate"
-            },
             "EventInUser": {
                 "properties": {
                     "id": {
@@ -2785,6 +2650,159 @@
                     "calendar_id"
                 ],
                 "title": "EventInUser"
+            },
+            "EventUpdate": {
+                "properties": {
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Date"
+                    },
+                    "isAllDay": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Isallday"
+                    },
+                    "startTime": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Starttime"
+                    },
+                    "endTime": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Endtime"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
+                    },
+                    "user_ids": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Ids"
+                    },
+                    "calendar_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Calendar Id"
+                    },
+                    "location": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Location"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status"
+                    },
+                    "recurring_rule": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Recurring Rule"
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By"
+                    }
+                },
+                "type": "object",
+                "title": "EventUpdate"
             },
             "FileCreate": {
                 "properties": {
@@ -2895,7 +2913,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-08T21:04:36.979100"
+                        "default": "2025-07-09T16:49:44.013682"
                     },
                     "action": {
                         "type": "string",
@@ -2939,7 +2957,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-08T21:04:36.979100"
+                        "default": "2025-07-09T16:49:44.013682"
                     },
                     "action": {
                         "type": "string",
@@ -2967,7 +2985,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-08T21:04:36.979100"
+                        "default": "2025-07-09T16:49:44.013682"
                     },
                     "action": {
                         "type": "string",

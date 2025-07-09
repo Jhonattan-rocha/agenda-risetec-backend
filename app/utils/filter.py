@@ -31,6 +31,7 @@ def apply_filters_dynamic(query, filters: str, model):
     condition_rule = "and"
     filter_parts = []
 
+    print(filters)
     if "$" in filters:
         filter_parts = filters.split("$")
     else:

@@ -9,7 +9,7 @@ from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.eventsSchema import Event, EventBase
 # ATENÇÃO: O schema de update pode ser diferente, ajuste se necessário
-from app.schemas.eventsSchema import EventCreate 
+from app.schemas.eventsSchema import EventUpdate
 
 router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Events"])
 
@@ -41,7 +41,7 @@ async def read_event(event_id: int, db: AsyncSession = Depends(database.get_db))
 @router.put("/event/{event_id}", response_model=Event)
 async def update_event(
     event_id: int, 
-    updated_event: EventCreate, # Use o schema apropriado para update
+    updated_event: EventUpdate, # Use o schema apropriado para update
     db: AsyncSession = Depends(database.get_db), 
 ):
     db_event = await eventsController.event_controller.get(db=db, id=event_id)
