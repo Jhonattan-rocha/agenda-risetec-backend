@@ -10,7 +10,7 @@ from app.schemas.userSchema import User, UserCreate, UserUpdate
 from app.controllers.tokenController import verify_token
 from app.models.userProfileModel import UserProfile # Importar para selectinload
 
-router = APIRouter(prefix="/crud", tags=["User"])
+router = APIRouter(prefix="/crud", tags=["User"], dependencies=[Depends(verify_token)])
 
 
 @router.post("/user/", response_model=User)

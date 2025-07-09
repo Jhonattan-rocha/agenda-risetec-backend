@@ -8,9 +8,9 @@ from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.calendarSchema import Calendar, CalendarBase, CalendarCreate
 
-router = APIRouter(prefix="/crud", tags=["Calendars"])
+router = APIRouter(prefix="/crud", tags=["Calendars"], dependencies=[Depends(verify_token)])
 
-@router.post("/calendar/", response_model=Calendar, dependencies=[Depends(verify_token)])
+@router.post("/calendar/", response_model=Calendar)
 async def create_calendar(
     calendar: CalendarBase, 
     db: AsyncSession = Depends(database.get_db), 

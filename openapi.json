@@ -336,6 +336,11 @@
                 ],
                 "summary": "Create User",
                 "operationId": "create_user_crud_user__post",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -899,6 +904,11 @@
                 ],
                 "summary": "Read Permissions",
                 "operationId": "read_permissions_crud_permissions__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "skip",
@@ -956,6 +966,11 @@
                 ],
                 "summary": "Read Permission",
                 "operationId": "read_permission_crud_permissions__permission_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -996,6 +1011,11 @@
                 ],
                 "summary": "Update Permission",
                 "operationId": "update_permission_crud_permissions__permission_id__put",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -1046,6 +1066,11 @@
                 ],
                 "summary": "Delete Permission",
                 "operationId": "delete_permission_crud_permissions__permission_id__delete",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "permission_id",
@@ -1877,6 +1902,11 @@
                 ],
                 "summary": "Read Calendar",
                 "operationId": "read_calendar_crud_calendar__calendar_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -1917,6 +1947,11 @@
                 ],
                 "summary": "Update Calendar",
                 "operationId": "update_calendar_crud_calendar__calendar_id__put",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -1967,6 +2002,11 @@
                 ],
                 "summary": "Delete Calendar",
                 "operationId": "delete_calendar_crud_calendar__calendar_id__delete",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "calendar_id",
@@ -2913,7 +2953,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-09T16:49:44.013682"
+                        "default": "2025-07-09T20:54:12.939190"
                     },
                     "action": {
                         "type": "string",
@@ -2957,7 +2997,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-09T16:49:44.013682"
+                        "default": "2025-07-09T20:54:12.939190"
                     },
                     "action": {
                         "type": "string",
@@ -2985,7 +3025,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-09T16:49:44.013682"
+                        "default": "2025-07-09T20:54:12.939190"
                     },
                     "action": {
                         "type": "string",
