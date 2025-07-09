@@ -15,7 +15,7 @@ WHATSAPP_LOG = r'whatsapp_service.log'
 
 # Serviço da API Principal (FastAPI)
 API_SERVICE_DIR = r'C:\Users\Jhonattan.rocha\Documents\projetos\agenda-risetec-backend'
-API_COMMAND = ['hypercorn', 'main:app', '--bind', '0.0.0.0:9000']
+API_COMMAND = ['hypercorn', 'main:app', '--bind', '0.0.0.0:11100', '--certfile', '/etc/ssl/risetec/cloud.risetec.com.br.crt', '--keyfile', '/etc/ssl/risetec/cloud.risetec.com.br.key']
 API_LOG = r'api_service.log'
 
 # --- Gerenciador de Processos ---
