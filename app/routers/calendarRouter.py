@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from app.controllers import calendarController
 from app.controllers.tokenController import verify_token
 from app.database import database
@@ -20,12 +21,17 @@ async def create_calendar(
 async def read_calendars(
     filters: str = None, 
     skip: int = 0, 
-    limit: int = 10,
+    limit: int = 100, # Aumentei o limite padrão
     db: AsyncSession = Depends(database.get_db),
+    current_user: int = Depends(verify_token)
 ):
-    # ALTERAÇÃO: Usa o método customizado 'get_multi_with_events'.
-    return await calendarController.calendar_controller.get_multi_with_events(
-        db=db, skip=skip, limit=limit, filters=filters, model="Calendar"
+    # ATUALIZADO: Chama o método genérico e passa a opção de carregar eventos.
+    return await calendarController.calendar_controller.get_multi_filtered(
+        db=db, 
+        skip=skip, 
+        limit=limit, 
+        filters=filters,
+        load_options=[selectinload(calendarController.calendar_controller.model.events)]
     )
 
 @router.get("/calendar/{calendar_id}", response_model=Calendar)

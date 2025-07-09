@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database.database import Base
+from app.utils import apply_filters_dynamic
 
 # Define tipos genéricos para o modelo e os esquemas
 ModelType = TypeVar("ModelType", bound=Base) # type: ignore
@@ -34,6 +35,34 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .limit(limit)
         )
         return result.scalars().all()
+
+    # NOVO: Método centralizado para obter múltiplos registros com filtros e ordenação
+    async def get_multi_filtered(
+        self, 
+        db: AsyncSession, 
+        *, 
+        skip: int = 0, 
+        limit: int = 100, 
+        filters: Optional[str] = None,
+        # Permite passar opções de carregamento (selectinload)
+        load_options: Optional[List] = None 
+    ) -> List[ModelType]:
+        query = select(self.model)
+
+        # Aplica o carregamento eager de relacionamentos se fornecido
+        if load_options:
+            query = query.options(*load_options)
+
+        # Aplica os filtros dinâmicos se existirem
+        if filters:
+            # Passa o nome do modelo para a função de filtro
+            query = apply_filters_dynamic(query, filters, self.model.__name__)
+
+        query = query.offset(skip).limit(limit if limit > 0 else None)
+        
+        result = await db.execute(query)
+        # Usa .unique() para evitar duplicatas ao usar joins
+        return result.scalars().unique().all()
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in.model_dump(exclude_unset=True, exclude_none=True))

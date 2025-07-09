@@ -47,7 +47,7 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
         self, db: AsyncSession, *, skip: int, limit: int, filters: Optional[str] = None, model: Optional[str] = ""
     ) -> List[Events]:
         query = select(self.model).options(selectinload(Events.users))
-
+        print(filters)
         # Adiciona a lógica de filtro dinâmico
         if filters and model:
             # NOVO: Verifica se o filtro é para usuário e aplica um join
@@ -64,6 +64,21 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
             query.offset(skip).limit(limit if limit > 0 else None)
         )
         return result.scalars().unique().all()
+    
+    # O get_event pode ser simplificado ou usar o get da base com selectinload
+    async def get_event_with_users(self, db: AsyncSession, *, id: int) -> Optional[Events]:
+        result = await db.execute(
+            select(self.model)
+            .options(selectinload(Events.users))
+            .filter(self.model.id == id)
+        )
+        event = result.scalars().unique().first()
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Event not found",
+            )
+        return event
 
 
 event_controller = CRUDEvent(Events)
