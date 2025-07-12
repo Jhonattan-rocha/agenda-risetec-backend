@@ -1,13 +1,17 @@
 # agenda-risetec-backend/main.py
 
 import json
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.middleware.loggerMiddleware import LoggingMiddleware
 from app.middleware.securityHeaders import SecurityHeadersMiddleware
-import os
+from app.dav.caldav_provider import CaldavProvider # Verifique se este import está correto
+from app.dav.auth_provider import RiseTecDomainController
+from wsgidav.wsgidav_app import WsgiDAVApp
+from fastapi.middleware.wsgi import WSGIMiddleware
 
 # NOVO: Lista centralizada de roteadores para inclusão automática
 from app.routers import (
@@ -84,3 +88,23 @@ app.add_middleware(
 app.add_middleware(SecurityHeadersMiddleware)
 # O LoggingMiddleware está comentado, mantendo o comportamento original.
 # app.add_middleware(LoggingMiddleware)
+
+dav_config = {
+    "provider_mapping": {
+        # O provider raiz agora é o CaldavProvider
+        "/": CaldavProvider(),
+    },
+    "domain_controller": RiseTecDomainController(),
+    "http_authenticator": {
+        "domain_controller": RiseTecDomainController(),
+        "accept_basic": True,
+        "accept_digest": False,
+        "default_to_basic": True,
+    },
+    "verbose": 3, # Use 3 para debug máximo durante o desenvolvimento
+    "enable_loggers": [],
+}
+
+dav_app = WsgiDAVApp(dav_config)
+
+app.mount("/dav", WSGIMiddleware(dav_app))
