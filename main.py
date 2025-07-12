@@ -4,12 +4,12 @@ import json
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.middleware.loggerMiddleware import LoggingMiddleware
 from app.middleware.securityHeaders import SecurityHeadersMiddleware
 from app.dav.caldav_provider import CaldavProvider # Verifique se este import está correto
-from app.dav.auth_provider import RiseTecDomainController
 from wsgidav.wsgidav_app import WsgiDAVApp
 from fastapi.middleware.wsgi import WSGIMiddleware
 
@@ -109,3 +109,11 @@ dav_config = {
 dav_app = WsgiDAVApp(dav_config)
 
 app.mount("/dav", WSGIMiddleware(dav_app))
+
+@app.get("/.well-known/caldav", include_in_schema=False)
+def redirect_caldav():
+    return RedirectResponse(url="/dav/", status_code=301)
+
+@app.get("/.well-known/carddav", include_in_schema=False)
+def redirect_carddav():
+    return RedirectResponse(url="/dav/", status_code=301)

@@ -25,14 +25,14 @@ class RiseTecDomainController:
         """
         Autentica um usuário usando o método Basic Auth de forma SÍNCRONA.
         """
-        # Cria uma nova sessão síncrona
         db = SessionLocalSync()
         try:
-            # Autentica usando a sessão síncrona
             user = authenticate_sync(db=db, email=user_name, password=password)
             
             if user:
-                environ["wsgidav.auth.user_name"] = user.name
+                # --- CORREÇÃO AQUI ---
+                # Armazena o e-mail do usuário (user_name) no ambiente, pois é usado nos caminhos de URL.
+                environ["wsgidav.auth.user_name"] = user_name
                 environ["wsgidav.auth.display_name"] = user.name
                 if user.profile:
                     environ["wsgidav.auth.roles"] = {user.profile.name}
@@ -40,13 +40,10 @@ class RiseTecDomainController:
 
         except Exception as e:
             print(f"Erro na autenticação DAV: {e}")
-            # Desfaz qualquer transação pendente em caso de erro
             db.rollback()
         finally:
-            # Garante que a sessão do banco de dados seja sempre fechada
             db.close()
 
-        # Falha na autenticação se o usuário não for encontrado ou a senha estiver incorreta
         return False
 
     def supports_http_digest_auth(self):

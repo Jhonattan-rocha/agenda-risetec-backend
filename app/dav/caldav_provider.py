@@ -64,6 +64,10 @@ class EventResource(DAVNonCollection):
         return self._put_stream
 
     def end_write(self, with_error):
+        """
+        Invocado após o conteúdo do PUT ter sido completamente escrito.
+        Agora lida com VEVENT (Eventos) e VTODO (Tarefas).
+        """
         if with_error:
             return
 
@@ -71,8 +75,23 @@ class EventResource(DAVNonCollection):
         db = SessionLocalSync()
         try:
             cal = ICal.from_ical(ics_data)
-            ievent = next(cal.walk('VEVENT'))
-            
+
+            # --- LÓGICA ATUALIZADA PARA ENCONTRAR O COMPONENTE CERTO ---
+            component = None
+            is_task = False
+            try:
+                # Primeiro, tenta encontrar um evento
+                component = next(cal.walk('VEVENT'))
+            except StopIteration:
+                try:
+                    # Se não for um evento, tenta encontrar uma tarefa
+                    component = next(cal.walk('VTODO'))
+                    is_task = True
+                except StopIteration:
+                    # Se não for nenhum dos dois, o arquivo é inválido
+                    raise DAVError(400, "O objeto iCalendar deve conter um VEVENT ou VTODO.")
+            # --- FIM DA LÓGICA ATUALIZADA ---
+
             # Extrai o ID do calendário e do usuário do path
             parts = [p for p in self.path.strip("/").split("/") if p]
             user_email = parts[0]
@@ -84,20 +103,35 @@ class EventResource(DAVNonCollection):
             calendar = syncCalendarController.get_by_owner_and_name_sync(db, owner_id=user.id, name=calendar_name)
             if not calendar: raise DAVError(HTTP_NOT_FOUND)
 
-            event_data = {
-                "title": str(ievent.get('summary', '')),
-                "description": str(ievent.get('description', '')),
-                "date": ievent.get('dtstart').dt,
-                "isAllDay": False,
+            # --- LÓGICA ATUALIZADA PARA EXTRAIR DADOS ---
+            item_data = {
+                "title": str(component.get('summary', '')),
+                "description": str(component.get('description', '')),
                 "created_by": user.id,
-                "user_ids": [user.id]
+                "user_ids": [user.id]  # Define o criador como participante padrão
             }
+
+            if is_task:
+                # É uma TAREFA (VTODO)
+                due_date = component.get('due')
+                # A data de vencimento de uma tarefa vai para o campo 'date' do nosso modelo
+                item_data['date'] = due_date.dt if due_date else datetime.now(pytz.utc)
+                # Mapeia o status da tarefa (ex: 'needs-action', 'completed')
+                item_data['status'] = str(component.get('status', 'needs-action')).lower()
+                item_data['isAllDay'] = True  # Tarefas são geralmente tratadas como "dia inteiro"
+            else:
+                # É um EVENTO (VEVENT)
+                item_data['date'] = component.get('dtstart').dt
+                item_data['status'] = 'confirmed' # Status padrão para eventos
+                item_data['isAllDay'] = not isinstance(component.get('dtstart').dt, datetime)
+            # --- FIM DA LÓGICA ATUALIZADA ---
+
+            # Usa o ID da URL para criar ou atualizar o item no banco
+            syncEventsController.create_or_update_sync(db, event_data=item_data, event_id=self.event_id, calendar_id=calendar.id)
             
-            # Usa o ID do evento da URL para criar ou atualizar
-            syncEventsController.create_or_update_sync(db, event_data=event_data, event_id=self.event_id, calendar_id=calendar.id)
         except Exception as e:
             print(f"Erro ao processar PUT (CalDAV): {e}")
-            raise DAVError(500, "Failed to process calendar data.")
+            raise DAVError(500, "Falha ao processar dados do calendário.")
         finally:
             db.close()
 
@@ -159,7 +193,7 @@ class CalendarCollection(DAVCollection):
 
 class UserCalendarsCollection(DAVCollection):
     """Representa a coleção de todos os calendários de um usuário."""
-    def __init__(self, path, environ, user_email):
+    def __init__(self, path, environ, user_email: str):
         super().__init__(path, environ)
         self.user_email = user_email
 
@@ -213,6 +247,30 @@ class UserCalendarsCollection(DAVCollection):
             raise DAVError(500)
         finally:
             db.close()
+    
+    # --- MÉTODO CORRIGIDO ---
+    def get_property(self, name, raise_error=True):
+        """Manipula as propriedades para a coleção principal do usuário."""
+        # O caminho para a coleção principal do usuário.
+        # Ex: '/dav/seu-email@dominio.com/'
+        # wsgidav.mount_path é o prefixo onde o app DAV está montado (se houver)
+        mount_path = self.environ.get("wsgidav.mount_path", "")
+        principal_path = f"{mount_path}/{self.user_email}/"
+
+        # Constrói o valor da propriedade como uma string XML
+        href_value = f"<D:href xmlns:D='DAV:'>{principal_path}</D:href>"
+
+        if name == "{DAV:}current-user-principal":
+            return href_value
+
+        if name == "{urn:ietf:params:xml:ns:caldav}calendar-home-set":
+            return href_value
+
+        if name == "{urn:ietf:params:xml:ns:carddav}addressbook-home-set":
+            # Responde também para CardDAV para evitar erros de descoberta
+            return href_value
+            
+        return super().get_property(name, raise_error)
 
 class RootCollection(DAVCollection):
     """Representa a coleção raiz '/'."""
@@ -227,6 +285,39 @@ class RootCollection(DAVCollection):
     def get_member(self, name):
         # 'name' aqui seria o e-mail do usuário
         return UserCalendarsCollection(f"/{name}", self.environ, name)
+
+    # --- MÉTODO CORRIGIDO ---
+    def get_property(self, name, raise_error=True):
+        """
+        Responde à descoberta do 'usuário principal' e dos 'home-sets' na raiz.
+        Esta implementação foi corrigida para responder adequadamente ao cliente CalDAV
+        retornando o valor como uma string XML.
+        """
+        # Tenta obter o nome de usuário do ambiente, que é preenchido pelo auth_provider
+        user_email = self.environ.get("wsgidav.auth.user_name")
+        if not user_email:
+            # Se o usuário não estiver autenticado, não podemos fornecer os caminhos
+            # e delegamos para a implementação da classe pai.
+            return super().get_property(name, raise_error)
+
+        # O caminho para a coleção principal do usuário.
+        # Ex: '/dav/seu-email@dominio.com/'
+        # wsgidav.mount_path é o prefixo onde o app DAV está montado (se houver)
+        mount_path = self.environ.get("wsgidav.mount_path", "")
+        principal_path = f"{mount_path}/{user_email}/"
+
+        # Constrói o valor da propriedade como uma string XML
+        href_value = f"<D:href xmlns:D='DAV:'>{principal_path}</D:href>"
+
+        if name in (
+            "{DAV:}current-user-principal",
+            "{urn:ietf:params:xml:ns:caldav}calendar-home-set",
+            "{urn:ietf:params:xml:ns:carddav}addressbook-home-set",
+        ):
+            return href_value
+
+        # Se a propriedade não for uma das acima, delega para a classe pai.
+        return super().get_property(name, raise_error)
 
 from wsgidav.dav_provider import DAVProvider
 
