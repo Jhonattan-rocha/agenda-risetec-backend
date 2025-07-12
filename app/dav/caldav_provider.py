@@ -13,6 +13,7 @@ from app.controllers import userController, calendarController, eventsController
 from app.models.userModel import User
 from app.models.calendarModel import Calendar
 from app.models.eventsModel import Events
+from app.schemas.eventsSchema import EventBase, EventUpdate
 
 # --- Funções Utilitárias ---
 
@@ -49,18 +50,17 @@ class EventResource(DAVNonCollection):
         self.event_id = event_id
         self.event = None # Carregado sob demanda
 
+    # --- Método GET (Leitura) - Sem alterações ---
     async def get_content(self):
         self.event = await get_event_by_id(self.event_id)
         if not self.event:
             raise DAVError(HTTP_NOT_FOUND)
 
-        # Crie o objeto iCalendar
         cal = ICal()
         cal.add('prodid', '-//RiseTec Agenda//')
         cal.add('version', '2.0')
 
         ievent = ICalEvent()
-        # Garanta que o datetime tem timezone. Assumindo UTC se não tiver.
         dt_start = self.event.date
         if dt_start.tzinfo is None:
             dt_start = pytz.utc.localize(dt_start)
@@ -68,20 +68,115 @@ class EventResource(DAVNonCollection):
         ievent.add('summary', self.event.title)
         ievent.add('description', self.event.description)
         ievent.add('dtstart', dt_start)
-        # TODO: Adicionar dtend, location, etc.
         ievent['uid'] = f"{self.event.id}@risetec.agenda"
         ievent['dtstamp'] = pytz.utc.localize(datetime.utcnow())
 
         cal.add_component(ievent)
-
-        # Retorna um stream de bytes
         return asyncio.get_event_loop().run_in_executor(None, cal.to_ical)
+
+    # --- NOVO: Método PUT (Escrita) ---
+    async def begin_write(self, content_type):
+        """Invocado quando uma requisição PUT é iniciada."""
+        if content_type.lower() != "text/calendar; charset=utf-8" and content_type.lower() != "text/calendar":
+             # Recusa qualquer coisa que não seja um iCalendar
+            raise DAVError(HTTP_FORBIDDEN, "Unsupported content type.")
+        # Retorna um stream para onde o wsgidav escreverá o conteúdo do PUT
+        from io import BytesIO
+        self._put_stream = BytesIO()
+        return self._put_stream
+
+    async def end_write(self, with_error):
+        """
+        Invocado após o conteúdo do PUT ter sido completamente escrito.
+        Aqui é onde a mágica acontece.
+        """
+        if with_error:
+            # Se algo deu errado durante a escrita do stream, não fazemos nada.
+            return
+
+        # 1. Obter o conteúdo .ics do stream
+        ics_data = self._put_stream.getvalue()
+
+        try:
+            # 2. Fazer o parse do conteúdo iCalendar
+            cal = ICal.from_ical(ics_data)
+            # Pegamos o primeiro componente VEVENT do calendário
+            ievent = next(cal.walk('VEVENT'))
+
+            # 3. Extrair os dados do evento
+            # O UID é crucial para identificar o evento de forma única
+            uid = str(ievent.get('uid'))
+            summary = str(ievent.get('summary'))
+            description = str(ievent.get('description', ''))
+            dtstart = ievent.get('dtstart').dt # .dt converte para objeto datetime
+
+            # Precisamos do calendar_id e do created_by
+            # Extraímos do path: /<user_email>/<calendar_name>/...
+            parts = [p for p in self.path.strip("/").split("/") if p]
+            user_email = parts[0]
+            calendar_name = parts[1] # Simulação, deveria buscar o ID
+
+            async with SessionLocal() as db:
+                user = await get_user_by_email(user_email)
+                if not user:
+                    raise DAVError(HTTP_FORBIDDEN, "User not found")
+
+                # TODO: Implementar busca de calendário por nome para obter o ID correto
+                calendar_id_db = 1 # Simulação
+
+                # 4. Preparar os dados para o nosso schema
+                event_data = {
+                    "title": summary,
+                    "description": description,
+                    "date": dtstart,
+                    "isAllDay": False, # TODO: Detectar se é um evento de dia inteiro
+                    "calendar_id": calendar_id_db,
+                    "created_by": user.id,
+                    "user_ids": [user.id] # Adiciona o criador como participante
+                }
+
+                # 5. Verificar se o evento já existe (pelo nosso event_id/self.event_id)
+                db_event = await eventsController.event_controller.get(db=db, id=self.event_id)
+
+                if db_event:
+                    # Se existe, ATUALIZA
+                    update_schema = EventUpdate(**event_data)
+                    await eventsController.event_controller.update(db=db, db_obj=db_event, obj_in=update_schema)
+                else:
+                    # Se não existe, CRIA
+                    create_schema = EventBase(**event_data)
+                    await eventsController.event_controller.create(db=db, obj_in=create_schema)
+
+        except Exception as e:
+            # Em caso de erro no parse ou no banco, retorna um erro para o cliente
+            print(f"Erro ao processar PUT: {e}")
+            raise DAVError(500, "Failed to process calendar data.")
+
+    # --- Outros métodos ---
 
     def get_content_type(self):
         return "text/calendar"
 
     def get_display_name(self):
         return f"{self.event_id}.ics"
+
+    # --- NOVO: ETag para versionamento ---
+    async def get_etag(self):
+        """
+        Retorna um identificador único para a versão atual do recurso.
+        Crucial para que os clientes saibam se precisam baixar o evento novamente.
+        """
+        if not self.event:
+            self.event = await get_event_by_id(self.event_id)
+
+        if not self.event:
+            return None
+
+        # Uma forma simples de ETag é usar um timestamp da última modificação
+        # Em um modelo real, você teria um campo `updated_at`. Vamos simular.
+        # return f'"{int(self.event.date.timestamp())}"'
+        # Por enquanto, vamos usar o ID como um etag simples.
+        return f'"{self.event.id}-{int(self.event.date.timestamp())}"'
 
 
 class CalendarCollection(DAVCollection):
