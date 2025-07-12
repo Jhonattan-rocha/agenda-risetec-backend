@@ -9,9 +9,25 @@ class RiseTecDomainController:
     Controlador de domínio customizado para autenticar usuários
     contra o banco de dados da aplicação, compatível com WsgiDAV v3+.
     """
-    def __init__(self, config={}):
-        # O construtor agora recebe a configuração, embora não a usemos aqui.
+    # --- CORREÇÃO AQUI ---
+    # O construtor agora aceita `wsgidav_app` e `config` como esperado pela biblioteca.
+    def __init__(self, wsgidav_app, config):
+        self._wsgidav_app = wsgidav_app
         self._config = config
+
+    def is_share_anonymous(self, share):
+        """
+        Informa ao WsgiDAV que nenhuma das nossas pastas permite acesso anônimo.
+        'share' aqui é a chave do `provider_mapping` (no nosso caso, "/").
+        """
+        return False
+    
+    def require_authentication(self, realm, environ):
+        """
+        Informa ao WsgiDAV que este realm (qualquer parte do nosso servidor)
+        sempre requer autenticação.
+        """
+        return True
 
     def get_domain_realm(self, path_info, environ):
         """Retorna o nome do 'realm' para o diálogo de autenticação."""
@@ -25,13 +41,11 @@ class RiseTecDomainController:
         """
         try:
             # Usamos asyncio.run para executar nossa coroutine de autenticação
-            # em um novo loop de eventos. É uma forma simples e eficaz para
-            # integrar sync com async neste contexto.
+            # em um novo loop de eventos.
             user = asyncio.run(self._authenticate_async(user_name, password))
 
             if user:
                 # Se a autenticação for bem-sucedida, informamos ao wsgidav.
-                # Também podemos enriquecer o 'environ' com dados do usuário se necessário.
                 environ["wsgidav.auth.user_name"] = user.name
                 environ["wsgidav.auth.display_name"] = user.name
                 if user.profile:

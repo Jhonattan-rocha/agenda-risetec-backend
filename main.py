@@ -98,6 +98,7 @@ dav_config = {
         "accept_basic": True,
         "accept_digest": False,
         "default_to_basic": True,
+        "default_to_digest": False
     },
     "verbose": 3,
     "logging": {
