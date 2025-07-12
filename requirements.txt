@@ -13,3 +13,4 @@ bcrypt
 wsgidav
 icalendar
 pytz
+defusedxml

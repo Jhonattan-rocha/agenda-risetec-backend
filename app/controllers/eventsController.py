@@ -5,7 +5,8 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy import delete
+from sqlalchemy import delete, and_
+from datetime import datetime
 
 from app.controllers.base import CRUDBase
 from app.models.eventsModel import Events, user_events_association
@@ -120,6 +121,30 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
                 detail="Event not found",
             )
         return event
+
+    async def get_events_in_range(
+        self,
+        db: AsyncSession,
+        *,
+        calendar_id: int,
+        start_date: datetime,
+        end_date: datetime
+    ) -> List[Events]:
+        """
+        Busca todos os eventos em um determinado calendário que ocorrem (iniciam)
+        dentro do intervalo de tempo especificado.
+        """
+        result = await db.execute(
+            select(self.model)
+            .where(
+                and_(
+                    self.model.calendar_id == calendar_id,
+                    self.model.date >= start_date,
+                    self.model.date < end_date # Use '<' para não incluir eventos que começam exatamente no fim do intervalo
+                )
+            )
+        )
+        return result.scalars().unique().all()
 
 
 event_controller = CRUDEvent(Events)

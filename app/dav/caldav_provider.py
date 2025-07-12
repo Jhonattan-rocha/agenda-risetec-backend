@@ -2,7 +2,7 @@
 
 import asyncio
 from wsgidav.dav_provider import DAVCollection, DAVNonCollection
-from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND, HTTP_FORBIDDEN
+from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND, HTTP_FORBIDDEN, HTTP_NO_CONTENT
 from icalendar import Calendar as ICal, Event as ICalEvent
 from datetime import datetime
 import pytz # Necessário para timezones
@@ -73,6 +73,31 @@ class EventResource(DAVNonCollection):
 
         cal.add_component(ievent)
         return asyncio.get_event_loop().run_in_executor(None, cal.to_ical)
+
+    # --- NOVO: Método DELETE ---
+    async def delete(self):
+        """
+        Invocado quando uma requisição DELETE é recebida.
+        Exclui o evento do banco de dados.
+        """
+        try:
+            async with SessionLocal() as db:
+                # Usa o controller de eventos para remover o evento pelo ID
+                deleted_event = await eventsController.event_controller.remove(db=db, id=self.event_id)
+                if not deleted_event:
+                    # Se o evento não foi encontrado, retorna 404
+                    raise DAVError(HTTP_NOT_FOUND)
+            
+            # Se a exclusão for bem-sucedida, wsgidav espera que um erro HTTP_NO_CONTENT seja levantado
+            # para enviar a resposta correta (204) ao cliente.
+            raise DAVError(HTTP_NO_CONTENT)
+            
+        except Exception as e:
+            # Se for um DAVError, repassa. Senão, encapsula como erro interno.
+            if isinstance(e, DAVError):
+                raise
+            print(f"Erro ao deletar evento {self.event_id}: {e}")
+            raise DAVError(500, "Failed to delete event.")
 
     # --- NOVO: Método PUT (Escrita) ---
     async def begin_write(self, content_type):
@@ -216,6 +241,71 @@ class CalendarCollection(DAVCollection):
         elif name == "{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set":
             return """<C:supported-calendar-component-set xmlns:C="urn:ietf:params:xml:ns:caldav"><C:comp name="VEVENT"/></C:supported-calendar-component-set>"""
         return await super().get_property(name, raise_error)
+
+    # --- NOVO: Método REPORT ---
+    async def report_calendar_query(self, xml_report_info, depth):
+        """
+        Lida com a requisição REPORT do tipo 'calendar-query'.
+        Este é o principal mecanismo de busca do CalDAV.
+        """
+        # 1. Parsear o XML da requisição para encontrar o time-range
+        try:
+            # Encontra o elemento 'time-range' dentro do filtro do 'calendar-query'
+            # Namespace 'C' para CalDAV, 'D' para DAV
+            ns = {'D': 'DAV:', 'C': 'urn:ietf:params:xml:ns:caldav'}
+            time_range = xml_report_info.find('C:filter/C:comp-filter/C:time-range', ns)
+
+            if time_range is None:
+                raise DAVError(400, "REPORT sem time-range não é suportado.")
+
+            # Extrai as datas de início e fim
+            start_str = time_range.get("start")
+            end_str = time_range.get("end")
+
+            # Converte as strings para objetos datetime (formato: 20240713T000000Z)
+            # O 'Z' no final indica UTC (Zulu time)
+            start_date = datetime.strptime(start_str, "%Y%m%dT%H%M%SZ").replace(tzinfo=pytz.utc)
+            end_date = datetime.strptime(end_str, "%Y%m%dT%H%M%SZ").replace(tzinfo=pytz.utc)
+
+        except Exception as e:
+            print(f"Erro ao parsear o REPORT: {e}")
+            raise DAVError(400, "XML do REPORT mal formatado.")
+
+        # 2. Buscar os eventos no banco de dados usando nosso novo método do controller
+        async with SessionLocal() as db:
+            events = await eventsController.event_controller.get_events_in_range(
+                db,
+                calendar_id=self.calendar_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+
+        # 3. Construir a resposta XML 'multistatus'
+        from wsgidav.xml_tools import make_response, make_prop_stat_response
+
+        responses = []
+        for event in events:
+            # Para cada evento, criamos um recurso temporário para obter seus dados
+            event_resource = EventResource(f"{self.path}/{event.id}.ics", self.environ, event.id)
+            event_resource.event = event # Pré-carrega o evento para evitar outra busca no DB
+
+            # Obtém o ETag e os dados iCalendar (.ics) do evento
+            etag = await event_resource.get_etag()
+            ics_data = await event_resource.get_content()
+
+            # Monta a parte da resposta para este evento específico
+            responses.append(
+                make_prop_stat_response(
+                    f"{self.path}{event.id}.ics", # URL completa do recurso
+                    {
+                        "{DAV:}getetag": etag,
+                        "{urn:ietf:params:xml:ns:caldav}calendar-data": ics_data.decode('utf-8')
+                    }
+                )
+            )
+
+        # Retorna a resposta completa no formato XML multistatus
+        return "".join(make_response(r) for r in responses)
 
 
 class UserCalendarsCollection(DAVCollection):
