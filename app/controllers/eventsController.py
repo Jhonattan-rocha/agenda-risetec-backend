@@ -5,9 +5,10 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy import delete
 
 from app.controllers.base import CRUDBase
-from app.models.eventsModel import Events
+from app.models.eventsModel import Events, user_events_association
 from app.models.userModel import User 
 from app.schemas.eventsSchema import EventCreate, EventBase, EventUpdate
 from app.utils import apply_filters_dynamic
@@ -50,27 +51,41 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
         db_obj: Events,
         obj_in: EventUpdate
     ) -> Events:
-        # Converte o schema de entrada para um dicionário
+        # Pega os dados do schema de entrada para atualização
         update_data = obj_in.model_dump(exclude_unset=True)
 
-        # Lógica específica para atualizar a lista de participantes
+        # Lida com a atualização da lista de participantes separadamente
         if 'user_ids' in update_data:
             user_ids = update_data.pop('user_ids')
-            if user_ids is not None: # Permite enviar uma lista vazia para remover todos
-                result = await db.execute(
-                    select(User).where(User.id.in_(user_ids))
+            if user_ids is not None: 
+                # PRIMEIRO: Executa a remoção explícita de todas as associações existentes para este evento.
+                await db.execute(
+                    delete(user_events_association).where(
+                        user_events_association.c.event_id == db_obj.id
+                    )
                 )
-                new_users = result.scalars().unique().all()
-                if len(new_users) != len(user_ids):
-                    raise HTTPException(status_code=404, detail="Um ou mais IDs de usuário para atualização não foram encontrados.")
-                # Substitui a lista de usuários antiga pela nova
-                db_obj.users = new_users
-            else: # Se user_ids for None, não faz nada
-                pass
+
+                # SEGUNDO: Se a nova lista não estiver vazia, busca os usuários e os adiciona.
+                if user_ids:
+                    result = await db.execute(select(User).where(User.id.in_(user_ids)))
+                    new_users = result.scalars().unique().all()
+                    if len(new_users) != len(set(user_ids)):
+                        raise HTTPException(status_code=404, detail="Um ou mais IDs de usuário para atualização não foram encontrados.")
+                    
+                    # A atribuição agora só fará INSERTs, pois não há nada para deletar.
+                    db_obj.users = new_users
+                else:
+                    # Se a lista de user_ids for vazia, garante que a relação fique vazia.
+                    db_obj.users = []
+
+        # TERCEIRO: Passa para a classe base atualizar os campos simples e comitar a transação.
+        # O commit irá persistir tanto o DELETE que executamos quanto os novos INSERTs na relação.
+        updated_db_obj = await super().update(db=db, db_obj=db_obj, obj_in=update_data)
         
-        # Chama o método de update da classe base para atualizar os outros campos
-        # Passa o dicionário 'update_data' que agora não contém mais 'user_ids'
-        return await super().update(db, db_obj=db_obj, obj_in=update_data)
+        # QUARTO: Recarrega a relação para garantir que a resposta JSON seja montada corretamente.
+        await db.refresh(updated_db_obj, attribute_names=['users'])
+        
+        return updated_db_obj
 
 
     # ATUALIZADO: para lidar com o filtro de usuário

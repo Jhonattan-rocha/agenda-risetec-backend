@@ -30,5 +30,5 @@ class User(Base):
         "Events",
         secondary=user_events_association,
         back_populates="users", # Garante que o lado Events.users também se atualize
-        lazy="selectin"
+        lazy="noload"
     )
