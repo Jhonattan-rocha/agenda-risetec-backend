@@ -17,6 +17,122 @@
         "version": "0.0.2"
     },
     "paths": {
+        "/.well-known/carddav": {
+            "get": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_carddav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "options": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_carddav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "propfind": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_carddav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "*": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_carddav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/.well-known/caldav": {
+            "get": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_caldav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "options": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_caldav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "propfind": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_caldav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "*": {
+                "summary": "Well Known Redirect",
+                "operationId": "well_known_redirect__well_known_caldav_propfind",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/crud/generic": {
             "post": {
                 "tags": [
@@ -2953,7 +3069,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-12T15:56:04.860229"
+                        "default": "2025-07-12T16:47:28.534884"
                     },
                     "action": {
                         "type": "string",
@@ -2997,7 +3113,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-12T15:56:04.860229"
+                        "default": "2025-07-12T16:47:28.534884"
                     },
                     "action": {
                         "type": "string",
@@ -3025,7 +3141,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-12T15:56:04.860229"
+                        "default": "2025-07-12T16:47:28.534884"
                     },
                     "action": {
                         "type": "string",

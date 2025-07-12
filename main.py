@@ -3,7 +3,7 @@
 import json
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
@@ -110,10 +110,7 @@ dav_app = WsgiDAVApp(dav_config)
 
 app.mount("/dav", WSGIMiddleware(dav_app))
 
-@app.get("/.well-known/caldav", include_in_schema=False)
-def redirect_caldav():
-    return RedirectResponse(url="/dav/", status_code=301)
-
-@app.get("/.well-known/carddav", include_in_schema=False)
-def redirect_carddav():
+@app.api_route("/.well-known/caldav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
+@app.api_route("/.well-known/carddav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
+async def well_known_redirect(request: Request):
     return RedirectResponse(url="/dav/", status_code=301)
