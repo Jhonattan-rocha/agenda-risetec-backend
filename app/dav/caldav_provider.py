@@ -2,10 +2,11 @@
 
 import asyncio
 from wsgidav.dav_provider import DAVCollection, DAVNonCollection
-from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND, HTTP_FORBIDDEN, HTTP_NO_CONTENT
+from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND, HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_CREATED
 from icalendar import Calendar as ICal, Event as ICalEvent
 from datetime import datetime
 import pytz # Necessário para timezones
+from defusedxml import ElementTree as ET
 
 # Importe seus controllers e o SessionLocal
 from app.database.database import SessionLocal
@@ -14,6 +15,7 @@ from app.models.userModel import User
 from app.models.calendarModel import Calendar
 from app.models.eventsModel import Events
 from app.schemas.eventsSchema import EventBase, EventUpdate
+from app.schemas.calendarSchema import CalendarBase # Novo import
 
 # --- Funções Utilitárias ---
 
@@ -337,6 +339,76 @@ class UserCalendarsCollection(DAVCollection):
 
     def get_display_name(self):
         return self.user_email
+
+    # --- NOVO MÉTODO: MKCALENDAR ---
+    async def create_collection(self, name):
+        """
+        Lida com a requisição MKCALENDAR para criar um novo calendário.
+        O 'name' é o último segmento da URL (ex: 'Trabalho').
+        """
+        # 1. Obter o corpo XML da requisição
+        try:
+            # wsgidav disponibiliza o corpo da requisição no environ
+            content_length = int(self.environ.get("CONTENT_LENGTH", 0))
+            xml_data = self.environ["wsgi.input"].read(content_length)
+        except Exception as e:
+            print(f"Erro ao ler o corpo da requisição MKCALENDAR: {e}")
+            raise DAVError(500)
+
+        # 2. Parsear o XML para extrair propriedades
+        display_name = name # Usa o nome da URL como padrão
+        description = None
+        # Adicione outras propriedades que você queira suportar, como cor
+
+        if xml_data:
+            try:
+                ns = {'D': 'DAV:', 'C': 'urn:ietf:params:xml:ns:caldav'}
+                root = ET.fromstring(xml_data)
+                # Encontra a propriedade displayname
+                dn_node = root.find("D:set/D:prop/D:displayname", ns)
+                if dn_node is not None and dn_node.text:
+                    display_name = dn_node.text
+
+                # Encontra a descrição do calendário
+                desc_node = root.find("D:set/D:prop/{urn:ietf:params:xml:ns:caldav}calendar-description", ns)
+                if desc_node is not None and desc_node.text:
+                    description = desc_node.text
+
+            except Exception as e:
+                print(f"Erro ao parsear o XML do MKCALENDAR: {e}")
+                # Não é um erro fatal, podemos prosseguir com os padrões
+                pass
+
+        # 3. Chamar o controller para criar o calendário no banco de dados
+        try:
+            async with SessionLocal() as db:
+                # Garante que o usuário existe
+                if not self.user:
+                    self.user = await get_user_by_email(self.user_email)
+                if not self.user:
+                    raise DAVError(HTTP_FORBIDDEN, "User not found to create calendar for.")
+
+                # Prepara o schema Pydantic para a criação
+                new_calendar_schema = CalendarBase(
+                    name=display_name,
+                    description=description,
+                    color="#0000FF", # Cor padrão
+                    visible=True,
+                    is_private=True,
+                    owner_id=self.user.id
+                )
+
+                # Cria o calendário
+                await calendarController.calendar_controller.create(db, obj_in=new_calendar_schema)
+
+        except Exception as e:
+            print(f"Erro de banco de dados ao criar calendário: {e}")
+            raise DAVError(500, "Could not create calendar in database.")
+
+        # 4. Retorna a resposta de sucesso
+        # wsgidav lida com o envio do status 201 Created quando levantamos este erro
+        raise DAVError(HTTP_CREATED)
+
 
 
 # --- Classe Principal do Provedor ---

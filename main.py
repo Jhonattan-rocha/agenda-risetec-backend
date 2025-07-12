@@ -91,18 +91,18 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 dav_config = {
     "provider_mapping": {
-        # O provider raiz agora é o CaldavProvider
         "/": CaldavProvider(),
     },
-    "domain_controller": RiseTecDomainController(),
     "http_authenticator": {
-        "domain_controller": RiseTecDomainController(),
+        "domain_controller": "app.dav.auth_provider.RiseTecDomainController",
         "accept_basic": True,
         "accept_digest": False,
         "default_to_basic": True,
     },
-    "verbose": 3, # Use 3 para debug máximo durante o desenvolvimento
-    "enable_loggers": [],
+    "verbose": 3,
+    "logging": {
+        "enable_loggers": []  
+    },
 }
 
 dav_app = WsgiDAVApp(dav_config)
