@@ -67,7 +67,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if not verify_password(password, user.password):
             return None
         return user
-    
+       
     async def get_users_with_details(self, db: AsyncSession, skip: int = 0, limit: int = 10, filters: Optional[str] = None, model: str = ""):
         query = select(self.model)
 
