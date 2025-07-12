@@ -30,7 +30,8 @@ async def read_events(
         skip=skip, 
         limit=limit, 
         filters=filters,
-        load_options=[selectinload(eventsController.event_controller.model.users)]
+        load_options=[selectinload(eventsController.event_controller.model.users)],
+        model="Events"
     )
 
 @router.get("/event/{event_id}", response_model=Event)

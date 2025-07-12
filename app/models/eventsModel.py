@@ -42,5 +42,5 @@ class Events(Base):
         "User",
         secondary=user_events_association,
         back_populates="events", # Adicionado back_populates
-        lazy="selectin" # Alterado para 'selectin' para consistência
+        lazy="noload" # Alterado para 'selectin' para consistência
     )

@@ -84,15 +84,7 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventCreate]):
         print(filters)
         # Adiciona a lógica de filtro dinâmico
         if filters and model:
-            # NOVO: Verifica se o filtro é para usuário e aplica um join
-            import json
-            filter_data = json.loads(filters)
-            if 'user_id' in filter_data and model == 'Events':
-                user_id = filter_data['user_id']
-                query = query.join(Events.users).where(User.id == user_id)
-            else:
-                # Mantém o filtro dinâmico para outros campos
-                query = apply_filters_dynamic(query, filters, model)
+            query = apply_filters_dynamic(query, filters, model)
 
         result = await db.execute(
             query.offset(skip).limit(limit if limit > 0 else None)
