@@ -85,32 +85,37 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.add_middleware(SecurityHeadersMiddleware)
-# O LoggingMiddleware está comentado, mantendo o comportamento original.
-# app.add_middleware(LoggingMiddleware)
+app.add_middleware(LoggingMiddleware)
 
 dav_config = {
     "provider_mapping": {
         "/": CaldavProvider(),
     },
+    "props_manager": True,
+    "locks_manager": True,
     "http_authenticator": {
         "domain_controller": "app.dav.auth_provider.RiseTecDomainController",
         "accept_basic": True,
         "accept_digest": False,
         "default_to_basic": True,
-        "default_to_digest": False
+        "default_to_digest": False,
+        "type": "basic",
+        "realm": "RiseTec Agenda",
     },
     "verbose": 3,
     "logging": {
         "enable_loggers": []  
     },
+    "enable_propsfind_fix": True,
 }
 
 dav_app = WsgiDAVApp(dav_config)
 
-app.mount("/dav", WSGIMiddleware(dav_app))
+app.mount("/dav/", WSGIMiddleware(dav_app))
 
 @app.api_route("/.well-known/caldav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
 @app.api_route("/.well-known/carddav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
 async def well_known_redirect(request: Request):
-    return RedirectResponse(url="/dav/", status_code=301)
+    return RedirectResponse(url="/dav", status_code=301)
