@@ -1,1 +1,2 @@
 hypercorn main:app --bind 0.0.0.0:11100 --certfile /etc/ssl/risetec/cloud.risetec.com.br.crt --keyfile /etc/ssl/risetec/cloud.risetec.com.br.key
+$env:PYTHONPATH = "$PWD"; python -m radicale --config .\radicale_config\config.conf
