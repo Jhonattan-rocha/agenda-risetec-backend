@@ -102,6 +102,14 @@ class Collection:
         """O Radicale usa o ID para identificar a coleção. Usaremos o nome do calendário."""
         return self.calendar_model.name
 
+    @property
+    def owner(self):
+        """
+        PROPRIEDADE ADICIONADA: Informa ao Radicale quem é o dono da coleção.
+        O dono é o login do usuário, que já armazenamos em self.user.
+        """
+        return self.user
+
     def get_meta(self):
         """Retorna metadados sobre o calendário."""
         return {

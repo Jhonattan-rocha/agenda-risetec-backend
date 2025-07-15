@@ -26,3 +26,7 @@ class Auth:
             print(f"[Radicale Auth] Erro na autenticação via API: {e}")
 
         return None
+
+    def get_external_login(self, login, path, depth):
+        # Retorna o login do usuário autenticado
+        return login
