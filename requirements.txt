@@ -15,3 +15,4 @@ icalendar
 pytz
 defusedxml
 psycopg2
+requests
