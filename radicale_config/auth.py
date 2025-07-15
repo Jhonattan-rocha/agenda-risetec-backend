@@ -1,15 +1,17 @@
 # radicale_config/auth.py
 
 import requests
+from radicale.auth import BaseAuth
 
 FASTAPI_AUTH_URL = "http://127.0.0.1:9000/radicale_auth/authenticate"
 
-class Auth:
+class Auth(BaseAuth):
     def __init__(self, configuration, *args, **kwargs):
         self.configuration = configuration
 
     def login(self, login, password):
         if not login or not password:
+            print("[Radicale Auth] Login ou senha vazios.")
             return None
 
         try:
@@ -19,14 +21,15 @@ class Auth:
                 timeout=5
             )
 
+            print(f"[Radicale Auth] Resposta da API: {response.status_code} - {response.text}")
+
             if response.status_code == 200:
-                return login
+                return login, password
 
         except requests.exceptions.RequestException as e:
             print(f"[Radicale Auth] Erro na autenticação via API: {e}")
 
         return None
 
-    def get_external_login(self, login, path, depth):
-        # Retorna o login do usuário autenticado
-        return login
+    def get_external_login(self, environ):
+        return environ.get("REMOTE_USER", "")

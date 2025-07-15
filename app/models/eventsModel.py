@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, T
 from app.database.database import Base
 from datetime import datetime
 from sqlalchemy.orm import relationship
+import uuid
 
 # Tabela de associação para a relação N-N entre usuários e eventos.
 user_events_association = Table(
@@ -19,6 +20,10 @@ class Events(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String(255), default="")
     description = Column(String(255), default="", nullable=True)
+    # --- NOVO CAMPO UID ---
+    # Este campo armazenará o UID do CalDAV, que é uma string.
+    # Ele será o identificador principal para a sincronização.
+    uid = Column(String(255), unique=True, index=True, default=lambda: str(uuid.uuid4()))
     
     # CORRIGIDO E ATUALIZADO: Garante que o tipo da coluna seja DateTime com fuso horário.
     date = Column(DateTime(timezone=True), default=datetime.now)
