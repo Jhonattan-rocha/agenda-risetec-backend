@@ -3,21 +3,17 @@
 import json
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.middleware.loggerMiddleware import LoggingMiddleware
 from app.middleware.securityHeaders import SecurityHeadersMiddleware
-from app.dav.caldav_provider import CaldavProvider # Verifique se este import está correto
-from wsgidav.wsgidav_app import WsgiDAVApp
-from fastapi.middleware.wsgi import WSGIMiddleware
 
 # NOVO: Lista centralizada de roteadores para inclusão automática
 from app.routers import (
     userRouter, userProfileRouter, permissionsRouter, tokenRouter,
     fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter,
-    whatsappRouter
+    whatsappRouter, radicaleAuthRouter
 )
 
 # NOVO: Agrupa todos os roteadores em uma lista para facilitar o registro
@@ -31,7 +27,8 @@ all_routers = [
     logRouter.router,
     eventsRouter.router,
     calendarRouter.router,
-    whatsappRouter.router
+    whatsappRouter.router,
+    radicaleAuthRouter.router
 ]
 
 @asynccontextmanager
@@ -88,34 +85,3 @@ app.add_middleware(
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(LoggingMiddleware)
-
-dav_config = {
-    "provider_mapping": {
-        "/": CaldavProvider(),
-    },
-    "props_manager": True,
-    "locks_manager": True,
-    "http_authenticator": {
-        "domain_controller": "app.dav.auth_provider.RiseTecDomainController",
-        "accept_basic": True,
-        "accept_digest": False,
-        "default_to_basic": True,
-        "default_to_digest": False,
-        "type": "basic",
-        "realm": "RiseTec Agenda",
-    },
-    "verbose": 3,
-    "logging": {
-        "enable_loggers": []  
-    },
-    "enable_propsfind_fix": True,
-}
-
-dav_app = WsgiDAVApp(dav_config)
-
-app.mount("/dav/", WSGIMiddleware(dav_app))
-
-@app.api_route("/.well-known/caldav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
-@app.api_route("/.well-known/carddav", methods=["GET", "PROPFIND", "OPTIONS", "*"])
-async def well_known_redirect(request: Request):
-    return RedirectResponse(url="/dav", status_code=301)
