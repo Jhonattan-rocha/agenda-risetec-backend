@@ -13,7 +13,7 @@ from app.middleware.securityHeaders import SecurityHeadersMiddleware
 from app.routers import (
     userRouter, userProfileRouter, permissionsRouter, tokenRouter,
     fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter,
-    whatsappRouter, radicaleAuthRouter
+    whatsappRouter
 )
 
 # NOVO: Agrupa todos os roteadores em uma lista para facilitar o registro
@@ -27,8 +27,7 @@ all_routers = [
     logRouter.router,
     eventsRouter.router,
     calendarRouter.router,
-    whatsappRouter.router,
-    radicaleAuthRouter.router
+    whatsappRouter.router
 ]
 
 @asynccontextmanager

@@ -2116,68 +2116,10 @@
                     }
                 ]
             }
-        },
-        "/radicale_auth/authenticate": {
-            "post": {
-                "tags": [
-                    "Radicale Auth"
-                ],
-                "summary": "Authenticate For Radicale",
-                "description": "Endpoint privado para o Radicale verificar as credenciais do usu\u00e1rio.",
-                "operationId": "authenticate_for_radicale_radicale_auth_authenticate_post",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AuthRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "components": {
         "schemas": {
-            "AuthRequest": {
-                "properties": {
-                    "username": {
-                        "type": "string",
-                        "title": "Username"
-                    },
-                    "password": {
-                        "type": "string",
-                        "title": "Password"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "username",
-                    "password"
-                ],
-                "title": "AuthRequest"
-            },
             "Body_create_file_crud_files__post": {
                 "properties": {
                     "file": {
@@ -3011,7 +2953,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-15T14:47:11.088354"
+                        "default": "2025-07-19T12:17:00.699779"
                     },
                     "action": {
                         "type": "string",
@@ -3055,7 +2997,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-15T14:47:11.088354"
+                        "default": "2025-07-19T12:17:00.699779"
                     },
                     "action": {
                         "type": "string",
@@ -3083,7 +3025,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-15T14:47:11.088354"
+                        "default": "2025-07-19T12:17:00.699779"
                     },
                     "action": {
                         "type": "string",
