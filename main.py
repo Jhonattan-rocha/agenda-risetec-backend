@@ -84,4 +84,4 @@ app.add_middleware(
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
-app.add_middleware(LoggingMiddleware)
+# app.add_middleware(LoggingMiddleware)
