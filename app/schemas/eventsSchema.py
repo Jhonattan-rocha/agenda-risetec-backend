@@ -1,4 +1,4 @@
-# agenda-risetec-backend/app/schemas/eventsSchema.py
+# app/schemas/eventsSchema.py
 
 from __future__ import annotations 
 from pydantic import BaseModel, field_validator
@@ -12,6 +12,7 @@ class EventBase(BaseModel):
     title: str
     description: Optional[str] = ""
     date: datetime
+    endDate: Optional[datetime] = None # NOVO CAMPO
     isAllDay: bool
     startTime: Optional[str] = ""
     endTime: Optional[str] = ""
@@ -24,9 +25,11 @@ class EventBase(BaseModel):
     recurring_rule: Optional[str] = None # e.g., "FREQ=WEEKLY;BYDAY=MO"
     created_by: Optional[int] = None
 
-    @field_validator("date", mode="before")
+    @field_validator("date", "endDate", mode="before")
     @classmethod
     def parse_date(cls, v):
+        if v is None:
+            return v
         if isinstance(v, str):
             try:
                 if v.endswith("Z"):
@@ -43,6 +46,7 @@ class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     date: Optional[datetime] = None
+    endDate: Optional[datetime] = None # NOVO CAMPO
     isAllDay: Optional[bool] = None
     startTime: Optional[str] = None
     endTime: Optional[str] = None

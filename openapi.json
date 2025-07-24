@@ -2405,6 +2405,18 @@
                         "format": "date-time",
                         "title": "Date"
                     },
+                    "endDate": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Enddate"
+                    },
                     "isAllDay": {
                         "type": "boolean",
                         "title": "Isallday"
@@ -2554,6 +2566,18 @@
                         "type": "string",
                         "format": "date-time",
                         "title": "Date"
+                    },
+                    "endDate": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Enddate"
                     },
                     "isAllDay": {
                         "type": "boolean",
@@ -2726,6 +2750,18 @@
                             }
                         ],
                         "title": "Date"
+                    },
+                    "endDate": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Enddate"
                     },
                     "isAllDay": {
                         "anyOf": [
@@ -2953,7 +2989,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-19T12:17:00.699779"
+                        "default": "2025-07-24T09:04:02.348071"
                     },
                     "action": {
                         "type": "string",
@@ -2997,7 +3033,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-19T12:17:00.699779"
+                        "default": "2025-07-24T09:04:02.348071"
                     },
                     "action": {
                         "type": "string",
@@ -3025,7 +3061,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-19T12:17:00.699779"
+                        "default": "2025-07-24T09:04:02.348071"
                     },
                     "action": {
                         "type": "string",

@@ -1,4 +1,4 @@
-# agenda-risetec-backend/app/models/eventsModel.py
+# app/models/eventsModel.py
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table
 from app.database.database import Base
@@ -20,13 +20,10 @@ class Events(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String(255), default="")
     description = Column(String(255), default="", nullable=True)
-    # --- NOVO CAMPO UID ---
-    # Este campo armazenará o UID do CalDAV, que é uma string.
-    # Ele será o identificador principal para a sincronização.
     uid = Column(String(255), unique=True, index=True, default=lambda: str(uuid.uuid4()))
     
-    # CORRIGIDO E ATUALIZADO: Garante que o tipo da coluna seja DateTime com fuso horário.
     date = Column(DateTime(timezone=True), default=datetime.now)
+    endDate = Column(DateTime(timezone=True), nullable=True) # NOVO CAMPO
     
     isAllDay = Column(Boolean, default=False)
     startTime = Column(String, nullable=True) # Pode ser nulo se for dia todo
