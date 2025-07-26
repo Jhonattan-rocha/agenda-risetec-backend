@@ -5,10 +5,9 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy import delete, and_
+from sqlalchemy import delete
 from datetime import datetime, timedelta
-# A importação principal está correta
-from dateutil.rrule import rrulestr, rrule, rruleset
+from dateutil.rrule import rrulestr, rrule
 
 from app.controllers.base import CRUDBase
 from app.models.eventsModel import Events, user_events_association
@@ -18,10 +17,20 @@ from app.utils import apply_filters_dynamic
 
 class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
 
-    async def create(self, db: AsyncSession, *, obj_in: EventBase) -> Events:
-        obj_in_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
-        user_ids = obj_in_data.pop('user_ids', [])
-        db_obj = self.model(**obj_in_data)
+    async def _associate_users(self, db: AsyncSession, db_obj: Events, user_ids: List[int]) -> Events:
+        """
+        Função auxiliar para associar usuários a um evento, limpando as associações antigas.
+        """
+        # Carrega a relação 'users' se ainda não estiver carregada, para evitar erros.
+        if 'users' not in db_obj.__dict__:
+            result = await db.execute(select(Events).options(selectinload(Events.users)).filter(Events.id == db_obj.id))
+            db_obj = result.scalars().first()
+
+        await db.execute(
+            delete(user_events_association).where(
+                user_events_association.c.event_id == db_obj.id
+            )
+        )
         
         if user_ids:
             result = await db.execute(select(User).where(User.id.in_(user_ids)))
@@ -29,6 +38,17 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
             if len(users) != len(user_ids):
                 raise HTTPException(status_code=404, detail="Um ou mais usuários não foram encontrados.")
             db_obj.users = users
+
+        return db_obj
+
+    async def create(self, db: AsyncSession, *, obj_in: EventBase) -> Events:
+        obj_in_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
+        user_ids = obj_in_data.pop('user_ids', [])
+        db_obj = self.model(**obj_in_data)
+        
+        if user_ids:
+            result = await db.execute(select(User).where(User.id.in_(user_ids)))
+            db_obj.users = result.scalars().unique().all()
 
         db.add(db_obj)
         await db.commit()
@@ -45,87 +65,78 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
         update_data = obj_in.model_dump(exclude_unset=True)
         edit_mode = update_data.pop("edit_mode", "all")
         occurrence_date = update_data.pop("occurrence_date", None)
+        user_ids_payload = update_data.pop('user_ids', None)
 
+        # Edição de um evento não-recorrente ou de toda a série
         if edit_mode == "all" or not db_obj.recurring_rule:
-            return await self.update_associations(db=db, db_obj=db_obj, obj_in=update_data)
+            updated_obj = await super().update(db=db, db_obj=db_obj, obj_in=update_data)
+            if user_ids_payload is not None:
+                updated_obj = await self._associate_users(db, updated_obj, user_ids_payload)
+            await db.commit()
+            await db.refresh(updated_obj)
+            return updated_obj
 
+        # Validação para edição de instâncias
         if not occurrence_date:
             raise HTTPException(status_code=400, detail="A data da ocorrência é necessária para editar um evento recorrente.")
 
+        await db.refresh(db_obj, attribute_names=['users'])
+
+        # Prepara os dados para o novo evento ANTES de modificar o original
+        new_event_data = self.model_to_dict(db_obj)
+        new_event_data.update(update_data)
+        new_event_data.pop('id', None)
+        new_event_data.pop('uid', None)
+        new_event_data['date'] = occurrence_date
+        new_event_data['recurring_rule'] = None 
+        new_event_data.pop('users', None)
+
         original_rule_str = f"DTSTART:{db_obj.date.strftime('%Y%m%dT%H%M%S')}\n{db_obj.recurring_rule}"
         rule_set = rrulestr(original_rule_str, forceset=True)
-        original_rule = rule_set._rrule[0]
-
+        
         if edit_mode == "future":
+            original_rule = rule_set._rrule[0]
             original_rule._until = occurrence_date - timedelta(days=1)
-            db_obj.recurring_rule = rrule.from_options(**original_rule._unpack_options()).to_string()
-            db.add(db_obj)
+            # CORREÇÃO: Usa o construtor rrule() para criar a nova regra
+            db_obj.recurring_rule = rrule(**original_rule._unpack_options()).to_string()
+            new_event_data['recurring_rule'] = db_obj.recurring_rule.replace(f"UNTIL={original_rule._until.strftime('%Y%m%dT%H%M%S')}Z", "")
 
-            new_event_data = {**self.model_to_dict(db_obj), **update_data}
-            user_ids_for_new = new_event_data.pop('user_ids', None)
-            new_event_data.pop('id', None)
-            new_event_data.pop('uid', None)
-            new_event_data['date'] = occurrence_date
-            
-            new_event = self.model(**new_event_data)
-            if user_ids_for_new:
-                result = await db.execute(select(User).where(User.id.in_(user_ids_for_new)))
-                new_event.users = result.scalars().unique().all()
-
-            db.add(new_event)
-            await db.commit()
-            await db.refresh(new_event)
-            return new_event
-
-        if edit_mode == "this":
-            # CORREÇÃO: Usar um rruleset para adicionar a exceção e depois extrair a nova regra.
+        elif edit_mode == "this":
             rule_set.exdate(occurrence_date)
+            rules = [line for line in str(rule_set).splitlines() if not line.startswith('DTSTART')]
+            db_obj.recurring_rule = '\n'.join(rules)
+
+        db.add(db_obj) # Adiciona o objeto original modificado à sessão
+
+        new_event = self.model(**new_event_data)
+        db.add(new_event) # Adiciona o novo evento à sessão
+        
+        await db.commit() # Salva ambas as alterações
+        await db.refresh(new_event)
+
+        # Associa os participantes ao novo evento criado
+        final_user_ids = user_ids_payload if user_ids_payload is not None else [user.id for user in db_obj.users]
+        # Associa os usuários ao novo evento
+        if final_user_ids:
+            new_event_with_users = await self._associate_users(db, new_event, final_user_ids)
+        else:
+            new_event_with_users = new_event
             
-            # A string de um rruleset pode conter múltiplas linhas (RRULE, EXDATE, etc.)
-            # e isso é perfeitamente válido para salvar no banco.
-            new_rule_string = '\n'.join(line for line in str(rule_set).splitlines() if line.startswith(('RRULE', 'EXDATE', 'RDATE')))
-            db_obj.recurring_rule = new_rule_string
-            db.add(db_obj)
+        await db.commit() # Salva as associações de usuários
+        await db.refresh(new_event_with_users)
 
-            new_event_data = {**self.model_to_dict(db_obj), **update_data}
-            user_ids_for_new = new_event_data.pop('user_ids', None)
-            new_event_data.pop('id', None)
-            new_event_data.pop('uid', None)
-            new_event_data['recurring_rule'] = None
-            new_event_data['date'] = occurrence_date
-            
-            new_event = self.model(**new_event_data)
-            if user_ids_for_new:
-                result = await db.execute(select(User).where(User.id.in_(user_ids_for_new)))
-                new_event.users = result.scalars().unique().all()
-
-            db.add(new_event)
-            await db.commit()
-            await db.refresh(new_event)
-            return new_event
-
-        return db_obj
+        return new_event_with_users
 
     def model_to_dict(self, model_instance):
-        d = {c.key: getattr(model_instance, c.key) for c in model_instance.__table__.columns}
-        d['user_ids'] = [user.id for user in model_instance.users]
-        return d
+        return {c.key: getattr(model_instance, c.key) for c in model_instance.__table__.columns}
         
-    async def update_associations(self, db: AsyncSession, db_obj: Events, obj_in: dict) -> Events:
-        if 'user_ids' in obj_in:
-            user_ids = obj_in.pop('user_ids')
-            if user_ids is not None:
-                await db.execute(delete(user_events_association).where(user_events_association.c.event_id == db_obj.id))
-                if user_ids:
-                    result = await db.execute(select(User).where(User.id.in_(user_ids)))
-                    new_users = result.scalars().unique().all()
-                    db_obj.users = new_users
-                else:
-                    db_obj.users = []
-        return await super().update(db=db, db_obj=db_obj, obj_in=obj_in)
-
-    async def get_event(self, db: AsyncSession, *, id: int) -> Optional[Events]:
-        event = await super().get(db, id)
+    async def get_event_with_users(self, db: AsyncSession, *, id: int) -> Optional[Events]:
+        result = await db.execute(
+            select(self.model)
+            .options(selectinload(Events.users))
+            .filter(self.model.id == id)
+        )
+        event = result.scalars().unique().first()
         if not event:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
         return event
@@ -143,17 +154,6 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
         result = await db.execute(query.offset(skip).limit(limit if limit > 0 else None))
         return result.scalars().unique().all()
     
-    async def get_event_with_users(self, db: AsyncSession, *, id: int) -> Optional[Events]:
-        result = await db.execute(
-            select(self.model)
-            .options(selectinload(Events.users))
-            .filter(self.model.id == id)
-        )
-        event = result.scalars().unique().first()
-        if not event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
-        return event
-
     async def get_events_in_range(
         self, db: AsyncSession, *, calendar_id: int, start_date: datetime, end_date: datetime
     ) -> List[Events]:
