@@ -1,6 +1,6 @@
 # app/schemas/eventsSchema.py
 
-from __future__ import annotations 
+from __future__ import annotations
 from pydantic import BaseModel, field_validator
 from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
@@ -12,17 +12,16 @@ class EventBase(BaseModel):
     title: str
     description: Optional[str] = ""
     date: datetime
-    endDate: Optional[datetime] = None # NOVO CAMPO
+    endDate: Optional[datetime] = None
     isAllDay: bool
     startTime: Optional[str] = ""
     endTime: Optional[str] = ""
     color: Optional[str] = ""
     user_ids: List[int] = []
     calendar_id: int
-    # NOVOS CAMPOS
     location: Optional[str] = None
-    status: Optional[str] = "confirmed" # e.g., 'confirmed', 'tentative', 'cancelled'
-    recurring_rule: Optional[str] = None # e.g., "FREQ=WEEKLY;BYDAY=MO"
+    status: Optional[str] = "confirmed"
+    recurring_rule: Optional[str] = None
     created_by: Optional[int] = None
 
     @field_validator("date", "endDate", mode="before")
@@ -46,17 +45,21 @@ class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     date: Optional[datetime] = None
-    endDate: Optional[datetime] = None # NOVO CAMPO
+    endDate: Optional[datetime] = None
     isAllDay: Optional[bool] = None
     startTime: Optional[str] = None
     endTime: Optional[str] = None
     color: Optional[str] = None
-    user_ids: Optional[List[int]] = None # Permite atualizar a lista de usuários
+    user_ids: Optional[List[int]] = None
     calendar_id: Optional[int] = None
     location: Optional[str] = None
     status: Optional[str] = None
     recurring_rule: Optional[str] = None
     created_by: Optional[int] = None
+
+    # NOVO: Campos para controlar a edição de eventos recorrentes
+    edit_mode: Optional[str] = "all"  # 'this', 'future', 'all'
+    occurrence_date: Optional[datetime] = None # Data da ocorrência que foi clicada
 
 class Event(EventBase):
     id: int

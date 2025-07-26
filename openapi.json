@@ -2875,6 +2875,30 @@
                             }
                         ],
                         "title": "Created By"
+                    },
+                    "edit_mode": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Edit Mode",
+                        "default": "all"
+                    },
+                    "occurrence_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Occurrence Date"
                     }
                 },
                 "type": "object",
@@ -2989,7 +3013,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T12:22:02.251308"
+                        "default": "2025-07-26T11:16:46.381401"
                     },
                     "action": {
                         "type": "string",
@@ -3033,7 +3057,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T12:22:02.251308"
+                        "default": "2025-07-26T11:16:46.381401"
                     },
                     "action": {
                         "type": "string",
@@ -3061,7 +3085,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T12:22:02.251308"
+                        "default": "2025-07-26T11:16:46.381401"
                     },
                     "action": {
                         "type": "string",
