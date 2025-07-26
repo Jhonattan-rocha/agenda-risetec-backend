@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy import delete, and_
 from datetime import datetime, timedelta
+# A importação principal está correta
 from dateutil.rrule import rrulestr, rrule, rruleset
 
 from app.controllers.base import CRUDBase
@@ -51,13 +52,12 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
         if not occurrence_date:
             raise HTTPException(status_code=400, detail="A data da ocorrência é necessária para editar um evento recorrente.")
 
-        original_rule_str = f"DTSTART:{db_obj.date.strftime('%Y%m%dT%H%M%S%z')}\n{db_obj.recurring_rule}"
+        original_rule_str = f"DTSTART:{db_obj.date.strftime('%Y%m%dT%H%M%S')}\n{db_obj.recurring_rule}"
         rule_set = rrulestr(original_rule_str, forceset=True)
         original_rule = rule_set._rrule[0]
 
         if edit_mode == "future":
-            new_until_date = occurrence_date - timedelta(days=1)
-            original_rule._until = new_until_date
+            original_rule._until = occurrence_date - timedelta(days=1)
             db_obj.recurring_rule = rrule.from_options(**original_rule._unpack_options()).to_string()
             db.add(db_obj)
 
@@ -78,18 +78,15 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
             return new_event
 
         if edit_mode == "this":
-            # CORREÇÃO: Anexa a nova data de exceção à string da regra existente.
-            # Isso é mais seguro do que reconstruir a regra inteira.
-            new_exdate_line = f"EXDATE:{occurrence_date.strftime('%Y%m%dT%H%M%S')}"
+            # CORREÇÃO: Usar um rruleset para adicionar a exceção e depois extrair a nova regra.
+            rule_set.exdate(occurrence_date)
             
-            if db_obj.recurring_rule:
-                db_obj.recurring_rule = f"{db_obj.recurring_rule}\n{new_exdate_line}".strip()
-            else:
-                db_obj.recurring_rule = new_exdate_line # Caso de segurança
-            
+            # A string de um rruleset pode conter múltiplas linhas (RRULE, EXDATE, etc.)
+            # e isso é perfeitamente válido para salvar no banco.
+            new_rule_string = '\n'.join(line for line in str(rule_set).splitlines() if line.startswith(('RRULE', 'EXDATE', 'RDATE')))
+            db_obj.recurring_rule = new_rule_string
             db.add(db_obj)
 
-            # Cria um novo evento único com as alterações
             new_event_data = {**self.model_to_dict(db_obj), **update_data}
             user_ids_for_new = new_event_data.pop('user_ids', None)
             new_event_data.pop('id', None)
