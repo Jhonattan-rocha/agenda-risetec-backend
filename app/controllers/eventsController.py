@@ -5,15 +5,36 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy import delete
 from datetime import datetime, timedelta
-from dateutil.rrule import rrulestr, rrule
+from dateutil.rrule import rrulestr, rrule, rruleset
 
 from app.controllers.base import CRUDBase
-from app.models.eventsModel import Events, user_events_association
+from app.models.eventsModel import Events
 from app.models.userModel import User
 from app.schemas.eventsSchema import EventCreate, EventBase, EventUpdate
 from app.utils import apply_filters_dynamic
+
+def serialize_rruleset(rs: rruleset, dtstart: datetime) -> str:
+    """
+    Serializa manualmente um rruleset para o formato iCalendar (RFC 5545).
+    Inclui RRULE, RDATE, EXDATE, EXRULE.
+    """
+    lines = [f"DTSTART:{dtstart.strftime('%Y%m%dT%H%M%S')}"]
+
+    for rule in rs._rrule:
+        lines.append(f"RRULE:{str(rule).splitlines()[1].replace('RRULE:', '')}")
+
+    for exrule in rs._exrule:
+        lines.append(f"EXRULE:{str(exrule).splitlines()[1].replace('RRULE:', '')}")
+
+    for rdate in rs._rdate:
+        for d in rdate:
+            lines.append(f"RDATE:{d.strftime('%Y%m%dT%H%M%S')}")
+
+    for exdate in rs._exdate:
+        lines.append(f"EXDATE:{exdate.strftime('%Y%m%dT%H%M%S')}")
+
+    return '\n'.join(lines)
 
 class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
 
@@ -26,12 +47,6 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
             result = await db.execute(select(Events).options(selectinload(Events.users)).filter(Events.id == db_obj.id))
             db_obj = result.scalars().first()
 
-        await db.execute(
-            delete(user_events_association).where(
-                user_events_association.c.event_id == db_obj.id
-            )
-        )
-        
         if user_ids:
             result = await db.execute(select(User).where(User.id.in_(user_ids)))
             users = result.scalars().unique().all()
@@ -89,22 +104,19 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
         new_event_data.pop('uid', None)
         new_event_data['date'] = occurrence_date
         new_event_data['recurring_rule'] = None 
-        new_event_data.pop('users', None)
 
         original_rule_str = f"DTSTART:{db_obj.date.strftime('%Y%m%dT%H%M%S')}\n{db_obj.recurring_rule}"
         rule_set = rrulestr(original_rule_str, forceset=True)
         
         if edit_mode == "future":
-            original_rule = rule_set._rrule[0]
-            original_rule._until = occurrence_date - timedelta(days=1)
-            # CORREÇÃO: Usa o construtor rrule() para criar a nova regra
-            db_obj.recurring_rule = rrule(**original_rule._unpack_options()).to_string()
+            original_rule: rrule = rule_set._rrule[0]
+            db_obj.recurring_rule = original_rule.__str__()
             new_event_data['recurring_rule'] = db_obj.recurring_rule.replace(f"UNTIL={original_rule._until.strftime('%Y%m%dT%H%M%S')}Z", "")
 
         elif edit_mode == "this":
             rule_set.exdate(occurrence_date)
-            rules = [line for line in str(rule_set).splitlines() if not line.startswith('DTSTART')]
-            db_obj.recurring_rule = '\n'.join(rules)
+            db_obj.recurring_rule = serialize_rruleset(rule_set, db_obj.date)
+
 
         db.add(db_obj) # Adiciona o objeto original modificado à sessão
 
@@ -116,12 +128,8 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
 
         # Associa os participantes ao novo evento criado
         final_user_ids = user_ids_payload if user_ids_payload is not None else [user.id for user in db_obj.users]
-        # Associa os usuários ao novo evento
-        if final_user_ids:
-            new_event_with_users = await self._associate_users(db, new_event, final_user_ids)
-        else:
-            new_event_with_users = new_event
-            
+        new_event_with_users = await self._associate_users(db, new_event, final_user_ids)
+        
         await db.commit() # Salva as associações de usuários
         await db.refresh(new_event_with_users)
 
