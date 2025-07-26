@@ -63,7 +63,10 @@ app = FastAPI(lifespan=lifespan_startup,
               license_info={
                   "name": "Apache 2.0",
                   "identifier": "MIT",
-              })
+              },
+              docs_url=None, 
+              redoc_url=None, 
+              openapi_url=None)
 
 # ATENÇÃO: Em produção, evite usar "*" e especifique as origens permitidas.
 origins = [
