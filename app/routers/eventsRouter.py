@@ -8,7 +8,6 @@ from app.controllers import eventsController
 from app.controllers.tokenController import verify_token
 from app.database import database
 from app.schemas.eventsSchema import Event, EventBase
-# ATENÇÃO: O schema de update pode ser diferente, ajuste se necessário
 from app.schemas.eventsSchema import EventUpdate
 
 router = APIRouter(prefix="/crud", dependencies=[Depends(verify_token)], tags=["Events"])
@@ -24,7 +23,6 @@ async def read_events(
     limit: int = 10,
     db: AsyncSession = Depends(database.get_db),
 ):
-    # ATUALIZADO: Chama o método genérico e passa a opção de carregar usuários.
     return await eventsController.event_controller.get_multi_filtered(
         db=db, 
         skip=skip, 
@@ -36,19 +34,16 @@ async def read_events(
 
 @router.get("/event/{event_id}", response_model=Event)
 async def read_event(event_id: int, db: AsyncSession = Depends(database.get_db)):
-    # ATUALIZADO: Chama o método específico que carrega os usuários.
     return await eventsController.event_controller.get_event_with_users(db=db, id=event_id)
 
 @router.put("/event/{event_id}", response_model=Event)
 async def update_event(
     event_id: int, 
-    updated_event: EventUpdate, # Use o schema apropriado para update
+    updated_event: EventUpdate,
     db: AsyncSession = Depends(database.get_db), 
 ):
-    db_event = await eventsController.event_controller.get(db=db, id=event_id)
-    if not db_event:
-        raise HTTPException(status_code=404, detail="Event not found")
-    # A lógica de update do controller base lidará com a atualização
+    # CORREÇÃO: Usar o método que já carrega o relacionamento 'users'
+    db_event = await eventsController.event_controller.get_event_with_users(db=db, id=event_id)
     return await eventsController.event_controller.update(db=db, db_obj=db_event, obj_in=updated_event)
 
 @router.delete("/event/{event_id}", response_model=Event)

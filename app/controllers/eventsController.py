@@ -8,7 +8,6 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy import delete, and_
 from datetime import datetime, timedelta
 from dateutil.rrule import rrulestr, rrule, rruleset
-import uuid # Importar a biblioteca uuid
 
 from app.controllers.base import CRUDBase
 from app.models.eventsModel import Events, user_events_association
@@ -65,7 +64,6 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
             new_event_data = {**self.model_to_dict(db_obj), **update_data}
             user_ids_for_new = new_event_data.pop('user_ids', None)
             new_event_data.pop('id', None)
-            # CORREÇÃO: Remover o UID antigo para que um novo seja gerado
             new_event_data.pop('uid', None)
             new_event_data['date'] = occurrence_date
             
@@ -80,19 +78,24 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
             return new_event
 
         if edit_mode == "this":
-            rule_set.exdate(occurrence_date.replace(tzinfo=None))
-            rule_lines = [str(r) for r in rule_set._rrule]
-            exdate_lines = [f"EXDATE:{dt.strftime('%Y%m%dT%H%M%S')}" for dt in rule_set._exdate]
-            db_obj.recurring_rule = "\n".join(rule_lines + exdate_lines)
+            # CORREÇÃO: Anexa a nova data de exceção à string da regra existente.
+            # Isso é mais seguro do que reconstruir a regra inteira.
+            new_exdate_line = f"EXDATE:{occurrence_date.strftime('%Y%m%dT%H%M%S')}"
+            
+            if db_obj.recurring_rule:
+                db_obj.recurring_rule = f"{db_obj.recurring_rule}\n{new_exdate_line}".strip()
+            else:
+                db_obj.recurring_rule = new_exdate_line # Caso de segurança
+            
             db.add(db_obj)
 
+            # Cria um novo evento único com as alterações
             new_event_data = {**self.model_to_dict(db_obj), **update_data}
             user_ids_for_new = new_event_data.pop('user_ids', None)
             new_event_data.pop('id', None)
-            # CORREÇÃO: Remover o UID antigo para que um novo seja gerado
             new_event_data.pop('uid', None)
-            new_event_data['date'] = occurrence_date
             new_event_data['recurring_rule'] = None
+            new_event_data['date'] = occurrence_date
             
             new_event = self.model(**new_event_data)
             if user_ids_for_new:
