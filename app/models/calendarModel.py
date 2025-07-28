@@ -26,7 +26,7 @@ class Calendar(Base):
     # --- FIM NOVOS CAMPOS ---
 
     # Relacionamento com eventos
-    events = relationship("Events", lazy="selectin", cascade="all, delete-orphan")
+    events = relationship("Events", lazy="selectin", back_populates="calendar", cascade="all, delete-orphan")
     
     # NOVO: Relacionamento com o proprietário do calendário
     owner = relationship("User", foreign_keys=[owner_id])

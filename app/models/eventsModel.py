@@ -45,6 +45,7 @@ class Events(Base):
     notification_message = Column(Text, nullable=True)
     
     # --- FIM NOVOS CAMPOS ---
+    calendar = relationship("Calendar", back_populates="events", lazy="selectin")
 
     # Relacionamento com usuários (participantes)
     users = relationship(

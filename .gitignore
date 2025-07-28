@@ -120,7 +120,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-#.env
+.env
 .venv
 env/
 venv/
@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 whatsapp/.wwebjs_auth
+whatsapp/.wwebjs_cache
 whatsapp/node_modules

@@ -1,10 +1,8 @@
 # app/services/notification_service.py
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from app.models.eventsModel import Events
-from app.models.calendarModel import Calendar
 from app.services.email_services import email_service
 from app.services.whatsapp_client_service import whatsapp_client_service
 from app.database.database import SessionLocal
@@ -12,36 +10,23 @@ from datetime import datetime, timedelta
 import asyncio
 
 class NotificationService:
+    # O intervalo fixo entre as repetições
+    REPEAT_INTERVAL_MINUTES = 5
+
     async def send_reminders(self):
-        """
-        Verifica todos os eventos que precisam de um lembrete e os envia.
-        Esta função é projetada para ser executada periodicamente por um agendador.
-        """
+        """Verifica e envia lembretes de eventos."""
         print(f"[{datetime.now()}] Verificando lembretes de eventos...")
-        
-        # Usamos SessionLocal para criar uma nova sessão de banco de dados para esta tarefa
         async with SessionLocal() as db:
             try:
-                # O SQLAlchemy lida com o timezone, mas vamos garantir que estamos comparando de forma consistente
-                now = datetime.now(datetime.utcnow().astimezone().tzinfo)
+                now = datetime.now(datetime.now().astimezone().tzinfo)
                 
-                # Seleciona eventos que ainda não aconteceram
+                # O select agora funciona com o relacionamento carregado via 'lazy="selectin"'
                 result = await db.execute(
-                    select(Events)
-                    .options(
-                        selectinload(Events.users),
-                        selectinload(Events.calendar) # Carrega o calendário relacionado
-                    )
-                    .filter(Events.date > now)
+                    select(Events).options(selectinload(Events.users), selectinload(Events.calendar)).filter(Events.date > now)
                 )
                 upcoming_events = result.scalars().unique().all()
 
-                tasks = []
-                for event in upcoming_events:
-                    # Adiciona a tarefa de processar cada evento à lista de tarefas concorrentes
-                    tasks.append(self.process_event_reminder(event, now))
-                
-                # Executa todas as tarefas de verificação de lembrete em paralelo
+                tasks = [asyncio.create_task(self.process_event_reminder(event, now)) for event in upcoming_events]
                 await asyncio.gather(*tasks)
 
             except Exception as e:
@@ -49,50 +34,69 @@ class NotificationService:
 
     async def process_event_reminder(self, event: Events, now: datetime):
         """
-        Processa um único evento para determinar se um lembrete deve ser enviado.
+        Processa um único evento para determinar se um lembrete deve ser enviado,
+        considerando as repetições e usando o schema correto.
         """
-        # Determina as configurações de notificação (prioriza o evento, senão usa o do calendário)
+        # --- Lógica de herança correta ---
+        # `event.calendar` agora funciona graças ao relacionamento que adicionamos.
         notify_type = event.notification_type or event.calendar.notification_type
-        time_before = event.notification_time_before if event.notification_time_before is not None else event.calendar.notification_time_before
+        
+        # Usa o campo `notification_time_before` (minutos) do evento ou do calendário
+        time_before_minutes = event.notification_time_before if event.notification_time_before is not None else event.calendar.notification_time_before
+
+        repeats = event.notification_repeats if event.notification_repeats is not None else event.calendar.notification_repeats
         message_template = event.notification_message or event.calendar.notification_message
 
-        if notify_type == 'none':
-            return # Não faz nada se as notificações estiverem desativadas
+        if notify_type == 'none' or time_before_minutes is None or repeats < 1:
+            return
 
-        reminder_time = event.date - timedelta(minutes=time_before)
+        # --- Lógica de cálculo de tempo simplificada ---
+        initial_reminder_timedelta = timedelta(minutes=time_before_minutes)
+        repeat_interval_delta = timedelta(minutes=self.REPEAT_INTERVAL_MINUTES)
+            
+        initial_reminder_time = event.date - initial_reminder_timedelta
+        # Loop para verificar cada repetição agendada
+        for i in range(repeats):
+            current_reminder_time = initial_reminder_time + (i * repeat_interval_delta)
+            # Verifica se a hora atual corresponde à janela de envio desta repetição
+            if now >= current_reminder_time:
+                print(f"Enviando lembrete (Repetição {i+1}/{repeats}) para o evento: '{event.title}'")
 
-        # Verifica se a hora atual está na janela de envio do lembrete (ex: 1 minuto)
-        if now >= reminder_time and now < reminder_time + timedelta(minutes=1):
-            print(f"Enviando lembrete para o evento: '{event.title}' (ID: {event.id})")
+                # Formata a mensagem
+                event_time_str = event.startTime or event.date.strftime('%H:%M')
+                message = message_template.format(event_title=event.title, event_time=event_time_str)
+                
+                # Dispara as notificações e sai do loop
+                await self.send_notification_to_users(event, notify_type, message)
+                break
 
-            # Formata a mensagem
-            event_time_str = event.startTime or event.date.strftime('%H:%M')
-            message = message_template.format(event_title=event.title, event_time=event_time_str)
+    async def send_notification_to_users(self, event: Events, notify_type: str, message: str):
+        """Função auxiliar para enviar notificações."""
 
-            for user in event.users:
-                # Enviar e-mail
-                if user.email and notify_type in ['email', 'both']:
-                    try:
-                        await email_service.send_email(
-                            subject=f"Lembrete: {event.title}",
-                            recipients=[user.email],
-                            template_name="reminder.html", # Supondo que você tenha este template
-                            template_body={"event_title": event.title, "event_date": event_time_str, "user_name": user.name}
-                        )
-                        print(f" - E-mail de lembrete enviado para {user.email}")
-                    except Exception as e:
-                        print(f" - Falha ao enviar e-mail para {user.email}: {e}")
+        # Esta função não precisa de alterações
+        for user in event.users:
+            if user.email and notify_type in ['email', 'both']:
+                try:
+                    await email_service.send_email(
+                        subject=f"Lembrete: {event.title}",
+                        recipients=[user.email],
+                        template_name="reminder.html",
+                        template_body={"event_title": event.title, "event_date": (event.startTime or event.date.strftime('%H:%M')), "user_name": user.name}
+                    )
+                    print(f" - E-mail de lembrete enviado para {user.email}")
+                except Exception as e:
+                    print(f" - Falha ao enviar e-mail para {user.email}: {e}")
 
-                # Enviar WhatsApp
-                if user.phone_number and notify_type in ['whatsapp', 'both']:
-                    try:
-                        await whatsapp_client_service.send_message(
-                            phone_number=user.phone_number,
-                            message=message
-                        )
-                        print(f" - WhatsApp de lembrete enviado para {user.phone_number}")
-                    except Exception as e:
-                        print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
+            if user.phone_number and notify_type in ['whatsapp', 'both']:
+                try:
+                    await whatsapp_client_service.send_message(
+                        phone_number=user.phone_number,
+                        message=message
+                    )
+                    print(f" - WhatsApp de lembrete enviado para {user.phone_number}")
+                except Exception as e:
+                    print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
+
 
 # Instância global do serviço
 notification_service = NotificationService()
