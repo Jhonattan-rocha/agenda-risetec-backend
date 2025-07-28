@@ -15,7 +15,7 @@ from app.services.notification_service import notification_service # NOVO
 from app.routers import (
     userRouter, userProfileRouter, permissionsRouter, tokenRouter,
     fileRouter, logRouter, genericRouter, eventsRouter, calendarRouter,
-    whatsappRouter
+    whatsappRouter, notificationRouter
 )
 
 # NOVO: Agrupa todos os roteadores em uma lista para facilitar o registro
@@ -29,7 +29,8 @@ all_routers = [
     logRouter.router,
     eventsRouter.router,
     calendarRouter.router,
-    whatsappRouter.router
+    whatsappRouter.router,
+    notificationRouter.router
 ]
 
 scheduler = AsyncIOScheduler()

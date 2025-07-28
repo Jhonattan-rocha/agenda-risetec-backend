@@ -2116,6 +2116,94 @@
                     }
                 ]
             }
+        },
+        "/crud/notifications/": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get User Notifications",
+                "description": "Busca o hist\u00f3rico de notifica\u00e7\u00f5es para o usu\u00e1rio logado.",
+                "operationId": "get_user_notifications_crud_notifications__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "unread_only",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Unread Only"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/NotificationLog"
+                                    },
+                                    "title": "Response Get User Notifications Crud Notifications  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/crud/notifications/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark Notifications As Read",
+                "description": "Marca todas as notifica\u00e7\u00f5es do usu\u00e1rio como lidas.",
+                "operationId": "mark_notifications_as_read_crud_notifications_read_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -3289,7 +3377,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-28T14:30:55.389029"
+                        "default": "2025-07-28T15:27:57.516702"
                     },
                     "action": {
                         "type": "string",
@@ -3333,7 +3421,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-28T14:30:55.389029"
+                        "default": "2025-07-28T15:27:57.516702"
                     },
                     "action": {
                         "type": "string",
@@ -3361,7 +3449,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-28T14:30:55.389029"
+                        "default": "2025-07-28T15:27:57.516702"
                     },
                     "action": {
                         "type": "string",
@@ -3380,6 +3468,61 @@
                     "id"
                 ],
                 "title": "LoggerCreate"
+            },
+            "NotificationLog": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "event_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Event Id"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "title": "Channel"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "is_read": {
+                        "type": "boolean",
+                        "title": "Is Read"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "user_id",
+                    "channel",
+                    "status",
+                    "content",
+                    "is_read",
+                    "created_at"
+                ],
+                "title": "NotificationLog"
             },
             "Permissions": {
                 "properties": {
