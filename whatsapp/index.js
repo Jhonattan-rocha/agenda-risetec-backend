@@ -22,18 +22,18 @@ app.post('/reconnect', (req, res) => {
 
 // Endpoint para enviar mensagens (sem alterações)
 app.post('/send-message', async (req, res) => {
-    const { number, message } = req.body;
+    const { phone_number, message } = req.body;
 
     if (getState().status !== 'READY') {
         return res.status(409).json({ success: false, error: 'O cliente de WhatsApp não está pronto.' });
     }
 
-    if (!number || !message) {
+    if (!phone_number || !message) {
         return res.status(400).json({ success: false, error: 'Número e mensagem são obrigatórios.' });
     }
 
     try {
-        const chatId = `${number.replace('+', '')}@c.us`;
+        const chatId = `${phone_number.replace('+', '')}@c.us`;
         await client.sendMessage(chatId, message);
         res.status(200).json({ success: true, message: 'Mensagem enviada com sucesso!' });
     } catch (error) {
