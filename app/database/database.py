@@ -4,11 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
-import os
 
 # --- Configuração Assíncrona (para o resto do seu app FastAPI) ---
 engine = create_async_engine(settings.DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine, class_=AsyncSession)
 
 # --- Configuração Síncrona (para o CalDAV) ---
 # Substitui o driver assíncrono (+asyncpg) pelo driver síncrono (padrão psycopg2)

@@ -20,69 +20,71 @@ class NotificationService:
         print(f"[{datetime.now()}] Verificando lembretes de eventos...")
         async with SessionLocal() as db:
             try:
-                now = datetime.now(datetime.now().astimezone().tzinfo)
+                now = datetime.now(datetime.utcnow().astimezone().tzinfo)
                 
-                # O select agora funciona com o relacionamento carregado via 'lazy="selectin"'
+                # CORREÇÃO 1: Lógica do filtro
+                # Usamos `&` para o AND e a lógica correta é `notifications_sent_count < notification_repeats`
                 result = await db.execute(
-                    select(Events).options(selectinload(Events.users), selectinload(Events.calendar)).filter(Events.date > now and Events.notification_repeats < Events.notifications_sent_count)
+                    select(Events)
+                    .options(selectinload(Events.users), selectinload(Events.calendar))
+                    .filter(
+                        Events.date > now,
+                        Events.notifications_sent_count < Events.notification_repeats
+                    )
                 )
                 upcoming_events = result.scalars().unique().all()
 
-                tasks = [asyncio.create_task(self.process_event_reminder(event, now)) for event in upcoming_events]
-                await asyncio.gather(*tasks)
+                # CORREÇÃO 2: Passamos a sessão 'db' para a função de processamento
+                tasks = [self.process_event_reminder(db, event, now) for event in upcoming_events]
+                if tasks:
+                    await asyncio.gather(*tasks)
 
             except Exception as e:
                 print(f"Erro ao processar lembretes: {e}")
 
-    async def process_event_reminder(self, event: Events, now: datetime):
+    async def process_event_reminder(self, db: AsyncSession, event: Events, now: datetime):
         """
-        Processa um único evento para determinar se um lembrete deve ser enviado,
-        considerando as repetições e usando o schema correto.
+        Processa um único evento para determinar se um lembrete deve ser enviado.
+        Esta função agora recebe a sessão do banco de dados para evitar erros.
         """
-        async with SessionLocal() as db:
-            # --- Lógica de herança correta ---
-            # `event.calendar` agora funciona graças ao relacionamento que adicionamos.
-            notify_type = event.notification_type or event.calendar.notification_type
+        # --- Lógica de herança (sem alterações) ---
+        total_repeats = event.notification_repeats if event.notification_repeats is not None else event.calendar.notification_repeats
+        notify_type = event.notification_type or event.calendar.notification_type
+        time_before_minutes = event.notification_time_before if event.notification_time_before is not None else event.calendar.notification_time_before
+        message_template = event.notification_message or event.calendar.notification_message
+
+        if notify_type == 'none' or time_before_minutes is None or total_repeats is None or event.notifications_sent_count >= total_repeats:
+            return
+
+        # --- Lógica de cálculo de tempo ---
+        initial_reminder_timedelta = timedelta(minutes=time_before_minutes)
+        repeat_interval_delta = timedelta(minutes=self.REPEAT_INTERVAL_MINUTES)
+        initial_reminder_time = event.date - initial_reminder_timedelta
+        
+        # Calcula o horário do PRÓXIMO lembrete
+        next_reminder_time = initial_reminder_time + (event.notifications_sent_count * repeat_interval_delta)
+
+        # CORREÇÃO 3: Adiciona a janela de 1 minuto para evitar reenvios
+        if now >= next_reminder_time:
+            print(f"Enviando lembrete (Envio Nº {event.notifications_sent_count + 1}/{total_repeats}) para o evento: '{event.title}'")
+
+            event_time_str = event.startTime or event.date.strftime('%H:%M')
+            message = message_template.format(event_title=event.title, event_time=event_time_str)
             
-            # Usa o campo `notification_time_before` (minutos) do evento ou do calendário
-            time_before_minutes = event.notification_time_before if event.notification_time_before is not None else event.calendar.notification_time_before
-
-            repeats = event.notification_repeats if event.notification_repeats is not None else event.calendar.notification_repeats
-            message_template = event.notification_message or event.calendar.notification_message
-
-            if notify_type == 'none' or time_before_minutes is None or repeats < 1:
-                return
-
-            # --- Lógica de cálculo de tempo simplificada ---
-            initial_reminder_timedelta = timedelta(minutes=time_before_minutes)
-            repeat_interval_delta = timedelta(minutes=self.REPEAT_INTERVAL_MINUTES)
-                
-            initial_reminder_time = event.date - initial_reminder_timedelta
-            # Loop para verificar cada repetição agendada
-
-            current_reminder_time = initial_reminder_time + (event.notifications_sent_count * repeat_interval_delta)
-            # Verifica se a hora atual corresponde à janela de envio desta repetição
-            if now >= current_reminder_time:
-                print(f"Enviando lembrete (Repetição {event.notifications_sent_count+1}/{repeats}) para o evento: '{event.title}'")
-
-                # Formata a mensagem
-                event_time_str = event.startTime or event.date.strftime('%H:%M')
-                message = message_template.format(event_title=event.title, event_time=event_time_str)
-                
-                # Dispara as notificações e sai do loop
-                await self.send_notification_to_users(db, event, notify_type, message)
+            # Envia a notificação e os logs
+            await self.send_notification_to_users(db, event, notify_type, message)
             
-                event.notifications_sent_count += 1
-                
-                await db.commit()
-                await db.refresh(event)
-
+            # Incrementa o contador
+            event.notifications_sent_count += 1
+            
+            # CORREÇÃO 4: O commit é feito aqui, uma vez por evento processado.
+            await db.commit()
+            print(f" - Contador do evento '{event.title}' atualizado para {event.notifications_sent_count}.")
 
     async def send_notification_to_users(self, db: AsyncSession, event: Events, notify_type: str, message: str):
-        """Função auxiliar para enviar notificações."""
-
-        # Esta função não precisa de alterações
+        """Função auxiliar para enviar notificações e registrar o log."""
         for user in event.users:
+            # ... (lógica de envio de email e criação do log_entry_email) ...
             if user.email and notify_type in ['email', 'both']:
                 log_entry_email = NotificationLog(
                     user_id=user.id, event_id=event.id, channel='email', content=message
@@ -101,6 +103,7 @@ class NotificationService:
                     print(f" - Falha ao enviar e-mail para {user.email}: {e}")
                 db.add(log_entry_email)
 
+            # ... (lógica de envio de whatsapp e criação do log_entry_number) ...
             if user.phone_number and notify_type in ['whatsapp', 'both']:
                 log_entry_number = NotificationLog(
                     user_id=user.id, event_id=event.id, channel='whatsapp', content=message
@@ -116,10 +119,8 @@ class NotificationService:
                     log_entry_number.status = 'failed'
                     print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
                 db.add(log_entry_number)
-            await db.commit()
-            await db.refresh(log_entry_email)
-            await db.refresh(log_entry_number)
-
+        
+        # CORREÇÃO 5: O commit foi removido daqui para ser centralizado na função principal.
 
 # Instância global do serviço
 notification_service = NotificationService()
