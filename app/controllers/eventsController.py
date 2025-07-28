@@ -13,6 +13,7 @@ from app.models.eventsModel import Events
 from app.models.userModel import User
 from app.schemas.eventsSchema import EventCreate, EventBase, EventUpdate
 from app.utils import apply_filters_dynamic
+from app.models.calendarModel import Calendar  # IMPORTANTE
 
 def serialize_rruleset(rs: rruleset, dtstart: datetime) -> str:
     """
@@ -57,8 +58,25 @@ class CRUDEvent(CRUDBase[Events, EventCreate, EventUpdate]):
         return db_obj
 
     async def create(self, db: AsyncSession, *, obj_in: EventBase) -> Events:
+        # Busca o calendário para herdar as configurações
+        calendar_result = await db.execute(select(Calendar).filter(Calendar.id == obj_in.calendar_id))
+        calendar = calendar_result.scalars().first()
+        if not calendar:
+            raise HTTPException(status_code=404, detail="Calendário não encontrado.")
+
         obj_in_data = obj_in.model_dump(exclude_unset=True, exclude_none=True)
         user_ids = obj_in_data.pop('user_ids', [])
+        
+        # --- ALTERAÇÃO PRINCIPAL AQUI ---
+        # Define a cor do evento como a cor do calendário, se nenhuma cor for especificada.
+        obj_in_data.setdefault('color', calendar.color)
+        
+        # Preenche as configurações de notificação do evento com as do calendário, se não forem fornecidas
+        obj_in_data.setdefault('notification_type', calendar.notification_type)
+        obj_in_data.setdefault('notification_time_before', calendar.notification_time_before)
+        obj_in_data.setdefault('notification_repeats', calendar.notification_repeats)
+        obj_in_data.setdefault('notification_message', calendar.notification_message)
+        
         db_obj = self.model(**obj_in_data)
         
         if user_ids:

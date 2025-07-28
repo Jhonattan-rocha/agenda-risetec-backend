@@ -2239,6 +2239,54 @@
                         ],
                         "title": "Owner Id"
                     },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type",
+                        "default": "email"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before",
+                        "default": 30
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats",
+                        "default": 1
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message",
+                        "default": "Lembrete: {event_title} \u00e0s {event_time}."
+                    },
                     "id": {
                         "type": "integer",
                         "title": "Id"
@@ -2315,6 +2363,54 @@
                             }
                         ],
                         "title": "Owner Id"
+                    },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type",
+                        "default": "email"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before",
+                        "default": 30
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats",
+                        "default": 1
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message",
+                        "default": "Lembrete: {event_title} \u00e0s {event_time}."
                     }
                 },
                 "type": "object",
@@ -2372,6 +2468,54 @@
                             }
                         ],
                         "title": "Owner Id"
+                    },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type",
+                        "default": "email"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before",
+                        "default": 30
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats",
+                        "default": 1
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message",
+                        "default": "Lembrete: {event_title} \u00e0s {event_time}."
                     }
                 },
                 "type": "object",
@@ -2513,6 +2657,50 @@
                             }
                         ],
                         "title": "Created By"
+                    },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before"
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats"
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message"
                     },
                     "id": {
                         "type": "integer",
@@ -2675,6 +2863,50 @@
                             }
                         ],
                         "title": "Created By"
+                    },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before"
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats"
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message"
                     }
                 },
                 "type": "object",
@@ -2876,6 +3108,50 @@
                         ],
                         "title": "Created By"
                     },
+                    "notification_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Type"
+                    },
+                    "notification_time_before": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Time Before"
+                    },
+                    "notification_repeats": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Repeats"
+                    },
+                    "notification_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notification Message"
+                    },
                     "edit_mode": {
                         "anyOf": [
                             {
@@ -3013,7 +3289,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T16:47:55.513016"
+                        "default": "2025-07-28T11:31:05.403908"
                     },
                     "action": {
                         "type": "string",
@@ -3057,7 +3333,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T16:47:55.513016"
+                        "default": "2025-07-28T11:31:05.403908"
                     },
                     "action": {
                         "type": "string",
@@ -3085,7 +3361,7 @@
                     "data": {
                         "type": "string",
                         "title": "Data",
-                        "default": "2025-07-26T16:47:55.513016"
+                        "default": "2025-07-28T11:31:05.403908"
                     },
                     "action": {
                         "type": "string",

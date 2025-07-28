@@ -1,6 +1,6 @@
 # app/models/eventsModel.py
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table, Text
 from app.database.database import Base
 from datetime import datetime
 from sqlalchemy.orm import relationship
@@ -37,6 +37,13 @@ class Events(Base):
     status = Column(String(50), default='confirmed', nullable=False) # e.g., 'confirmed', 'tentative', 'cancelled'
     recurring_rule = Column(String(255), nullable=True) # Ex: "FREQ=WEEKLY;BYDAY=MO"
     created_by = Column(Integer, ForeignKey('users.id'), nullable=True)
+
+    # --- CAMPOS DE NOTIFICAÇÃO (PARA OVERRIDE) ---
+    notification_type = Column(String(20), nullable=True)
+    notification_time_before = Column(Integer, nullable=True)
+    notification_repeats = Column(Integer, nullable=True)
+    notification_message = Column(Text, nullable=True)
+    
     # --- FIM NOVOS CAMPOS ---
 
     # Relacionamento com usuários (participantes)

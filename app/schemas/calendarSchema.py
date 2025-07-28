@@ -12,6 +12,11 @@ class CalendarBase(BaseModel):
     description: Optional[str] = None
     is_private: Optional[bool] = False
     owner_id: Optional[int] = None
+    # CAMPOS DE NOTIFICAÇÃO
+    notification_type: Optional[str] = 'email'
+    notification_time_before: Optional[int] = 30
+    notification_repeats: Optional[int] = 1
+    notification_message: Optional[str] = 'Lembrete: {event_title} às {event_time}.'
 
 
 class CalendarCreate(CalendarBase):

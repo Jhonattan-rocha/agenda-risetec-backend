@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.middleware.loggerMiddleware import LoggingMiddleware
 from app.middleware.securityHeaders import SecurityHeadersMiddleware
+from apscheduler.schedulers.asyncio import AsyncIOScheduler # NOVO
+from app.services.notification_service import notification_service # NOVO
 
 # NOVO: Lista centralizada de roteadores para inclusão automática
 from app.routers import (
@@ -30,8 +32,13 @@ all_routers = [
     whatsappRouter.router
 ]
 
+scheduler = AsyncIOScheduler()
+
 @asynccontextmanager
 async def lifespan_startup(app: FastAPI):
+    scheduler.add_job(notification_service.send_reminders, 'interval', minutes=1)
+    scheduler.start()
+    
     # NOVO: Itera sobre a lista de roteadores e os inclui na aplicação
     for router in all_routers:
         app.include_router(router)
@@ -41,7 +48,9 @@ async def lifespan_startup(app: FastAPI):
         await conn.run_sync(database.Base.metadata.create_all)
     
     yield
-
+    
+    scheduler.shutdown()
+    print("Agendador de notificações encerrado.")
 
 def generate_doc():
     # Esta função pode ser movida para um script de build/deploy em um ambiente de produção

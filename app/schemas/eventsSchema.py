@@ -23,6 +23,11 @@ class EventBase(BaseModel):
     status: Optional[str] = "confirmed"
     recurring_rule: Optional[str] = None
     created_by: Optional[int] = None
+    # CAMPOS DE NOTIFICAÇÃO (PARA OVERRIDE)
+    notification_type: Optional[str] = None
+    notification_time_before: Optional[int] = None
+    notification_repeats: Optional[int] = None
+    notification_message: Optional[str] = None
 
     @field_validator("date", "endDate", mode="before")
     @classmethod
@@ -56,6 +61,11 @@ class EventUpdate(BaseModel):
     status: Optional[str] = None
     recurring_rule: Optional[str] = None
     created_by: Optional[int] = None
+    # CAMPOS DE NOTIFICAÇÃO (PARA OVERRIDE)
+    notification_type: Optional[str] = None
+    notification_time_before: Optional[int] = None
+    notification_repeats: Optional[int] = None
+    notification_message: Optional[str] = None
 
     # NOVO: Campos para controlar a edição de eventos recorrentes
     edit_mode: Optional[str] = "all"  # 'this', 'future', 'all'

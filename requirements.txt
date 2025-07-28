@@ -18,3 +18,5 @@ psycopg2
 requests
 alembic
 python-dateutil
+apscheduler
+fastapi_mail
