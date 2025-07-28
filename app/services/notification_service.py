@@ -24,7 +24,7 @@ class NotificationService:
                 
                 # O select agora funciona com o relacionamento carregado via 'lazy="selectin"'
                 result = await db.execute(
-                    select(Events).options(selectinload(Events.users), selectinload(Events.calendar)).filter(Events.date > now)
+                    select(Events).options(selectinload(Events.users), selectinload(Events.calendar)).filter(Events.date > now and Events.notification_repeats < Events.notifications_sent_count)
                 )
                 upcoming_events = result.scalars().unique().all()
 
@@ -59,19 +59,24 @@ class NotificationService:
                 
             initial_reminder_time = event.date - initial_reminder_timedelta
             # Loop para verificar cada repetição agendada
-            for i in range(repeats):
-                current_reminder_time = initial_reminder_time + (i * repeat_interval_delta)
-                # Verifica se a hora atual corresponde à janela de envio desta repetição
-                if now >= current_reminder_time:
-                    print(f"Enviando lembrete (Repetição {i+1}/{repeats}) para o evento: '{event.title}'")
 
-                    # Formata a mensagem
-                    event_time_str = event.startTime or event.date.strftime('%H:%M')
-                    message = message_template.format(event_title=event.title, event_time=event_time_str)
-                    
-                    # Dispara as notificações e sai do loop
-                    await self.send_notification_to_users(db, event, notify_type, message)
-                    break
+            current_reminder_time = initial_reminder_time + (event.notifications_sent_count * repeat_interval_delta)
+            # Verifica se a hora atual corresponde à janela de envio desta repetição
+            if now >= current_reminder_time:
+                print(f"Enviando lembrete (Repetição {event.notifications_sent_count+1}/{repeats}) para o evento: '{event.title}'")
+
+                # Formata a mensagem
+                event_time_str = event.startTime or event.date.strftime('%H:%M')
+                message = message_template.format(event_title=event.title, event_time=event_time_str)
+                
+                # Dispara as notificações e sai do loop
+                await self.send_notification_to_users(db, event, notify_type, message)
+            
+                event.notifications_sent_count += 1
+                
+                await db.commit()
+                await db.refresh(event)
+
 
     async def send_notification_to_users(self, db: AsyncSession, event: Events, notify_type: str, message: str):
         """Função auxiliar para enviar notificações."""

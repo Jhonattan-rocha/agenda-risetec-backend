@@ -43,7 +43,8 @@ class Events(Base):
     notification_time_before = Column(Integer, nullable=True)
     notification_repeats = Column(Integer, nullable=True)
     notification_message = Column(Text, nullable=True)
-    
+    notifications_sent_count = Column(Integer, default=0, nullable=False)
+
     # --- FIM NOVOS CAMPOS ---
     calendar = relationship("Calendar", back_populates="events", lazy="selectin")
 
