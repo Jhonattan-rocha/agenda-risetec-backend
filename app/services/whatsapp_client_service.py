@@ -32,6 +32,23 @@ class WhatsAppClientService:
                 return {"success": False, "message": f"O serviço de WhatsApp retornou um erro: {e.response.status_code}"}
 
     async def send_message(self, phone_number: str, message: str):
+        send_url = "http://10.10.124.244:8080/api/messages/send"
+        payload = {"number": phone_number, "message": message}
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(send_url, json=payload, timeout=30.0, headers={
+                            "Content-Type": "application/json",
+                            "Authorization": f"Bearer lahskjdsadsiu",
+                            "X_TOKEN": "lahskjdsadsiu"
+                        })
+                response.raise_for_status()
+                return {"success": True, "details": response.json()}
+            except httpx.RequestError as e:
+                return {"success": False, "details": f"Não foi possível conectar ao serviço de WhatsApp em {e.request.url}"}
+            except httpx.HTTPStatusError as e:
+                return {"success": False, "details": f"O serviço de WhatsApp retornou um erro: {e.response.status_code}, {e.response.text}"}
+
+    async def send_messagev2(self, phone_number: str, message: str):
         """Envia uma mensagem de texto."""
         send_url = f"{self.base_url}send-message"
         payload = {"phone_number": phone_number, "message": message}
