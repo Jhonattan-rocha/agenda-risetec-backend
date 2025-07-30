@@ -33,7 +33,7 @@ class WhatsAppClientService:
 
     async def send_message(self, phone_number: str, message: str):
         send_url = "http://10.10.124.244:8080/api/messages/send"
-        payload = {"number": phone_number, "message": message}
+        payload = {"number": phone_number, "body": message}
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(send_url, json=payload, timeout=30.0, headers={
