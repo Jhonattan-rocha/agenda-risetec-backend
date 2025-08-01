@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.eventsModel import Events
+from app.models.calendarModel import Calendar
 from app.models.notificationLogModel import NotificationLog
 from app.services.email_services import email_service
 from app.services.whatsapp_client_service import whatsapp_client_service
@@ -83,8 +84,11 @@ class NotificationService:
 
     async def send_notification_to_users(self, db: AsyncSession, event: Events, notify_type: str, message: str):
         """Função auxiliar para enviar notificações e registrar o log."""
+        calendar_result = await db.execute(select(Calendar).filter(Calendar.id == event.calendar_id))
+        calendar = calendar_result.scalars().first()
+        participant_names = [user.name for user in event.users if user.name]
+
         for user in event.users:
-            # ... (lógica de envio de email e criação do log_entry_email) ...
             if user.email and notify_type in ['email', 'both']:
                 log_entry_email = NotificationLog(
                     user_id=user.id, event_id=event.id, channel='email', content=message
@@ -94,7 +98,14 @@ class NotificationService:
                         subject=f"Lembrete: {event.title}",
                         recipients=[user.email],
                         template_name="reminder.html",
-                        template_body={"event_title": event.title, "event_date": (event.startTime or event.date.strftime('%H:%M')), "user_name": user.name}
+                        template_body={"event_title": event.title, 
+                                       "event_date_start": (event.startTime or event.date), 
+                                       "event_date_final": (event.endTime or event.endDate),
+                                       "event_place": event.location,
+                                       "event_status": event.status,
+                                       "event_calendar": calendar.name,
+                                       "event_desc": event.description,
+                                       "users": participant_names}
                     )
                     log_entry_email.status = 'sent'
                     print(f" - E-mail de lembrete enviado para {user.email}")

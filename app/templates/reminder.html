@@ -1,80 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lembrete de Evento</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e1e1e1;
-            overflow: hidden;
-        }
-        .header {
-            background-color: #007bff;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 30px;
-            line-height: 1.6;
-            color: #333333;
-        }
-        .content p {
-            margin: 0 0 15px;
-        }
-        .event-details {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #007bff;
-        }
-        .event-details strong {
-            color: #555555;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #888888;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Notificação Lembrete</title>
 </head>
-<body>
+<body style="margin: 0; padding: 0; background-color: #e7e7e7; font-family: Arial, sans-serif;">
+  <table align="center" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff;">
+    <!-- Cabeçalho com imagem -->
+    <tr>
+      <td align="center" style="padding: 0;">
+        <img src="https://susari.com.br/Notificacao1_Lembrente_agenda.png" alt="Notificação Lembrete" style="display: block; width: 100%; max-width: 600px;">
+      </td>
+    </tr>
 
-    <div class="container">
-        <div class="header">
-            <h1>Lembrete de Evento</h1>
-        </div>
-        <div class="content">
-            <p>Olá, <strong>{{ user_name }}</strong>!</p>
-            <p>Este é um lembrete amigável para o seu próximo compromisso agendado.</p>
+    <!-- Bloco: Lembrete de agendamento -->
+    <tr>
+      <td style="padding: 20px; font-size: 14px; line-height: 1.6;">
+        <strong>Lembrete de agendamento:</strong><br><br>
+        <strong>Título:</strong> {{ event_title }}<br>
+        <strong>Data Início:</strong> {{ event_date_start }}<br>
+        <strong>Data Final:</strong> {{ event_date_final }}<br>
+        <strong>Localização:</strong> {{ event_place }}<br>
+        <strong>Status:</strong> {{ event_status }}<br>
+        <strong>Cliente:</strong> {{ event_calendar }}
+      </td>
+    </tr>
+
+    <!-- Linha separadora -->
+    <tr>
+      <td>
+        <hr style="border: none; border-top: 1px solid #bbbbbb; margin: 0 20px;">
+      </td>
+    </tr>
+
+    <!-- Bloco: Descrição -->
+    <tr>
+      <td style="padding: 20px; font-size: 14px; line-height: 1.6;">
+        <strong>Descrição:</strong><br><br>
+        {{ event_desc }}
+      </td>
+    </tr>
+
+    <!-- Linha separadora -->
+    <tr>
+      <td>
+        <hr style="border: none; border-top: 1px solid #bbbbbb; margin: 0 20px;">
+      </td>
+    </tr>
+
+    <!-- Bloco: Participantes (numerado em linha única) -->
+    <tr>
+      <td style="padding: 20px; font-size: 14px; line-height: 1.6;">
+        <strong>Participantes:</strong>
+        
+        {% if event_participants %}
+          <ol style="margin-top: 10px; padding-left: 20px; margin-bottom: 0;">
             
-            <div class="event-details">
-                <p><strong>Evento:</strong> {{ event_title }}</p>
-                <p><strong>Horário:</strong> {{ event_date }}</p>
-            </div>
+            {% for participant in event_participants %}
+              <li style="margin-bottom: 5px;">{{ participant }}</li>
+            {% endfor %}
 
-            <p style="margin-top: 20px;">Tenha um ótimo dia!</p>
-        </div>
-        <div class="footer">
-            <p>Este é um e-mail automático enviado pela Agenda Risetec.</p>
-        </div>
-    </div>
+          </ol>
+        {% else %}
+          <br><br>
+          <span>Nenhum participante informado.</span>
+        {% endif %}
 
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
