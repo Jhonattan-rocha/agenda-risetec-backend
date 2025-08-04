@@ -46,6 +46,7 @@ class NotificationService:
     async def send_reminders_late(self):
         async with SessionLocal() as db:
             await self.send_overdue_reminders(db)
+            await db.commit()
 
     async def process_event_reminder(self, db: AsyncSession, event: Events, now: datetime):
         """
@@ -150,7 +151,7 @@ class NotificationService:
                 selectinload(Events.users), # Carrega os participantes
                 selectinload(Events.calendar) # Carrega o calendário para pegar o nome
             )
-            .where(
+            .filter(
                 Events.endDate < now,
                 Events.status != 'confirmed'
             )
@@ -211,6 +212,7 @@ class NotificationService:
                     except Exception as e:
                         log_entry_number.status = 'failed'
                         print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
+                    
                     db.add(log_entry_number)
     
         # CORREÇÃO 5: O commit foi removido daqui para ser centralizado na função principal.
