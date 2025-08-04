@@ -38,7 +38,7 @@ scheduler = AsyncIOScheduler()
 @asynccontextmanager
 async def lifespan_startup(app: FastAPI):
     scheduler.add_job(notification_service.send_reminders, 'interval', minutes=1)
-    scheduler.add_job(notification_service.send_overdue_reminders, 'cron', hour=8)
+    scheduler.add_job(notification_service.send_reminders_late, 'cron', hour=8)
     scheduler.start()
     
     # NOVO: Itera sobre a lista de roteadores e os inclui na aplicação
