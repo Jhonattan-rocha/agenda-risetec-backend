@@ -43,6 +43,10 @@ class NotificationService:
             except Exception as e:
                 print(f"Erro ao processar lembretes: {e}")
 
+    async def send_reminders_late(self):
+        async with SessionLocal() as db:
+            await self.send_overdue_reminders(db)
+
     async def process_event_reminder(self, db: AsyncSession, event: Events, now: datetime):
         """
         Processa um único evento para determinar se um lembrete deve ser enviado.
@@ -131,6 +135,84 @@ class NotificationService:
                     print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
                 db.add(log_entry_number)
         
+    # NOVA FUNÇÃO
+    async def send_overdue_reminders(self, db: AsyncSession):
+        """
+        Busca eventos que já passaram da data final e cujo status não é 'confirmed',
+        e envia um lembrete para todos os participantes.
+        """
+        now = datetime.now()
+        
+        # Query para encontrar os eventos pendentes e atrasados
+        query = (
+            select(Events)
+            .options(
+                selectinload(Events.users), # Carrega os participantes
+                selectinload(Events.calendar) # Carrega o calendário para pegar o nome
+            )
+            .where(
+                Events.endDate < now,
+                Events.status != 'confirmed'
+            )
+        )
+        
+        result = await db.execute(query)
+        overdue_events = result.scalars().unique().all()
+        
+        print(f"Encontrados {len(overdue_events)} eventos atrasados para notificar.")
+
+        for event in overdue_events:
+            if not event.users:
+                continue
+            
+            template_body = {
+                "event_title": event.title,
+                "event_date_start": event.date.strftime('%d/%m/%Y %H:%M'),
+                "event_date_final": event.endDate.strftime('%d/%m/%Y %H:%M') if event.endDate else "N/A",
+                "event_place": event.location or "Não especificado",
+                "event_status": event.status,
+                "event_calendar": event.calendar.name if event.calendar else "N/A",
+                "event_desc": event.description or "Nenhuma descrição.",
+                "event_participants": event.users
+            }
+            
+            for user in event.users:
+                if user.email:
+                    log_entry_email = NotificationLog(
+                        user_id=user.id, event_id=event.id, channel='email', content=event.notification_message or event.calendar.notification_message
+                    )
+                    
+                    try:
+                        await email_service.send_email(
+                            subject=f"Lembrete de Pendência: {event.title}",
+                            recipients=[user.email],
+                            template_name="late.html",
+                            template_body=template_body
+                        )
+                        log_entry_email.status = 'sent'
+                        print(f"E-mail de lembrete enviado para o evento ID: {event.id}")
+                    except Exception as e:
+                        log_entry_email.status = 'failed'
+                        print(f"Falha ao enviar e-mail para o evento ID {event.id}: {e}")
+                    
+                    db.add(log_entry_email)
+                
+                if user.phone_number:
+                    log_entry_number = NotificationLog(
+                        user_id=user.id, event_id=event.id, channel='whatsapp', content=event.notification_message or event.calendar.notification_message
+                    )
+                    try:
+                        await whatsapp_client_service.send_message(
+                            phone_number=user.phone_number,
+                            message=event.notification_message or event.calendar.notification_message
+                        )
+                        log_entry_number.status = 'sent'
+                        print(f" - WhatsApp de lembrete enviado para {user.phone_number}")
+                    except Exception as e:
+                        log_entry_number.status = 'failed'
+                        print(f" - Falha ao enviar WhatsApp para {user.phone_number}: {e}")
+                    db.add(log_entry_number)
+    
         # CORREÇÃO 5: O commit foi removido daqui para ser centralizado na função principal.
 
 # Instância global do serviço
